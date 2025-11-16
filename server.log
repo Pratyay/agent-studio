@@ -1,0 +1,304 @@
+INFO  [2025-11-13 21:44:31,015] i.d.core.server.DefaultServerFactory - Registering jersey handler with root path prefix: /
+INFO  [2025-11-13 21:44:31,021] i.d.core.server.DefaultServerFactory - Registering admin handler with root path prefix: /
+INFO  [2025-11-13 21:44:31,022] io.dropwizard.assets.AssetsBundle - Registering AssetBundle with name: assets for path /ui/*
+INFO  [2025-11-13 21:44:31,640] i.d.core.server.ServerFactory - Starting agent-registry
+INFO  [2025-11-13 21:44:31,698] o.e.jetty.setuid.SetUIDListener - Opened application@7158daf2{HTTP/1.1, (http/1.1)}{0.0.0.0:8080}
+INFO  [2025-11-13 21:44:31,698] o.e.jetty.setuid.SetUIDListener - Opened admin@10f19647{HTTP/1.1, (http/1.1)}{0.0.0.0:8081}
+INFO  [2025-11-13 21:44:31,700] org.eclipse.jetty.server.Server - jetty-10.0.20; built: 2024-01-29T20:46:45.278Z; git: 3a745c71c23682146f262b99f4ddc4c1bc41630c; jvm 25.0.1
+INFO  [2025-11-13 21:44:31,980] i.d.jersey.DropwizardResourceConfig - The following paths were found for the configured resources:
+
+    GET     /api/a2a-agents (com.example.agent.registry.A2AAgentResource)
+    POST    /api/a2a-agents (com.example.agent.registry.A2AAgentResource)
+    GET     /api/a2a-agents/status (com.example.agent.registry.A2AAgentResource)
+    POST    /api/a2a-agents/test (com.example.agent.registry.A2AAgentResource)
+    DELETE  /api/a2a-agents/{agentId} (com.example.agent.registry.A2AAgentResource)
+    GET     /api/a2a-agents/{agentId} (com.example.agent.registry.A2AAgentResource)
+    GET     /api/agents (com.example.agent.registry.AgentRegistryResource)
+    POST    /api/agents (com.example.agent.registry.AgentRegistryResource)
+    GET     /api/agents/available (com.example.agent.registry.AgentRegistryResource)
+    GET     /api/agents/capability/{capability} (com.example.agent.registry.AgentRegistryResource)
+    POST    /api/agents/generate (com.example.agent.registry.AgentGeneratorResource)
+    GET     /api/agents/status (com.example.agent.registry.AgentRegistryResource)
+    DELETE  /api/agents/{agentId} (com.example.agent.registry.AgentRegistryResource)
+    GET     /api/agents/{agentId} (com.example.agent.registry.AgentRegistryResource)
+    PUT     /api/agents/{agentId} (com.example.agent.registry.AgentRegistryResource)
+    POST    /api/agents/{agentId}/load (com.example.agent.registry.AgentRegistryResource)
+    POST    /api/agents/{agentId}/unload (com.example.agent.registry.AgentRegistryResource)
+    POST    /api/mcp/discover (com.example.agent.registry.MCPDiscoveryResource)
+    POST    /api/mcp/test (com.example.agent.registry.MCPDiscoveryResource)
+    GET     /api/tools (com.example.agent.registry.ToolRegistryResource)
+    POST    /api/tools (com.example.agent.registry.ToolRegistryResource)
+    DELETE  /api/tools/{toolId} (com.example.agent.registry.ToolRegistryResource)
+    GET     /api/tools/{toolId} (com.example.agent.registry.ToolRegistryResource)
+    PUT     /api/tools/{toolId} (com.example.agent.registry.ToolRegistryResource)
+
+INFO  [2025-11-13 21:44:31,982] o.e.j.server.handler.ContextHandler - Started i.d.j.MutableServletContextHandler@41f4039e{/,null,AVAILABLE}
+INFO  [2025-11-13 21:44:31,984] i.d.core.setup.AdminEnvironment - tasks = 
+
+    POST    /tasks/log-level (io.dropwizard.servlets.tasks.LogConfigurationTask)
+    POST    /tasks/gc (io.dropwizard.servlets.tasks.GarbageCollectionTask)
+
+WARN  [2025-11-13 21:44:31,984] i.d.core.setup.AdminEnvironment - 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!    THIS APPLICATION HAS NO HEALTHCHECKS. THIS MEANS YOU WILL NEVER KNOW      !
+!     IF IT DIES IN PRODUCTION, WHICH MEANS YOU WILL NEVER KNOW IF YOU'RE      !
+!    LETTING YOUR USERS DOWN. YOU SHOULD ADD A HEALTHCHECK FOR EACH OF YOUR    !
+!         APPLICATION'S DEPENDENCIES WHICH FULLY (BUT LIGHTLY) TESTS IT.       !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+INFO  [2025-11-13 21:44:31,984] o.e.j.server.handler.ContextHandler - Started i.d.j.MutableServletContextHandler@1cc8416a{/,null,AVAILABLE}
+INFO  [2025-11-13 21:44:31,988] o.e.jetty.server.AbstractConnector - Started application@7158daf2{HTTP/1.1, (http/1.1)}{0.0.0.0:8080}
+INFO  [2025-11-13 21:44:31,988] o.e.jetty.server.AbstractConnector - Started admin@10f19647{HTTP/1.1, (http/1.1)}{0.0.0.0:8081}
+INFO  [2025-11-13 21:44:31,989] org.eclipse.jetty.server.Server - Started Server@750ff7d3{STARTING}[10.0.20,sto=30000] @3019ms
+INFO  [2025-11-13 21:46:22,998] c.example.agent.registry.MCPClient - Querying MCP server: http://localhost:3000/mcp
+INFO  [2025-11-13 21:46:23,008] c.e.a.registry.MCPDiscoveryResource - Discovering tools from MCP server: http://localhost:3000/mcp
+INFO  [2025-11-13 21:46:23,008] c.e.a.registry.MCPDiscoveryResource - Adjusted SSE URL to: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:46:23,041] c.e.agent.registry.StandardMCPClient - Connecting to MCP server via SSE: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:46:23,042] c.e.agent.registry.StandardMCPClient - Building MCP client with timeout: 30s
+INFO  [2025-11-13 21:46:23,051] c.e.agent.registry.StandardMCPClient - Initializing MCP client connection to: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:46:23,212] i.m.client.LifecycleInitializer - Server response with Protocol: 2024-11-05, Capabilities: ServerCapabilities[completions=null, experimental=null, logging=null, prompts=null, resources=null, tools=ToolCapabilities[listChanged=null]], Info: Implementation[name=simple-mcp-server, title=null, version=1.0.0] and Instructions null
+INFO  [2025-11-13 21:46:23,229] c.e.agent.registry.StandardMCPClient - Successfully connected to MCP server: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:46:23,254] c.e.a.registry.MCPDiscoveryResource - Discovered 5 tools from http://localhost:3000/mcp
+INFO  [2025-11-13 21:46:23,257] c.e.agent.registry.StandardMCPClient - Closed MCP client connection: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:46:23,388] c.example.agent.registry.MCPClient - Querying MCP server: http://localhost:3000/mcp
+INFO  [2025-11-13 21:46:23,391] c.e.a.registry.MCPDiscoveryResource - Discovering tools from MCP server: http://localhost:3000/mcp
+INFO  [2025-11-13 21:46:23,391] c.e.a.registry.MCPDiscoveryResource - Adjusted SSE URL to: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:46:23,391] c.e.agent.registry.StandardMCPClient - Connecting to MCP server via SSE: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:46:23,391] c.e.agent.registry.StandardMCPClient - Building MCP client with timeout: 30s
+INFO  [2025-11-13 21:46:23,392] c.e.agent.registry.StandardMCPClient - Initializing MCP client connection to: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:46:23,405] i.m.client.LifecycleInitializer - Server response with Protocol: 2024-11-05, Capabilities: ServerCapabilities[completions=null, experimental=null, logging=null, prompts=null, resources=null, tools=ToolCapabilities[listChanged=null]], Info: Implementation[name=simple-mcp-server, title=null, version=1.0.0] and Instructions null
+INFO  [2025-11-13 21:46:23,408] c.e.agent.registry.StandardMCPClient - Successfully connected to MCP server: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:46:23,426] c.e.a.registry.MCPDiscoveryResource - Discovered 5 tools from http://localhost:3000/mcp
+INFO  [2025-11-13 21:46:23,426] c.e.agent.registry.StandardMCPClient - Closed MCP client connection: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:46:24,049] c.example.agent.registry.MCPClient - Querying MCP server: http://localhost:3000/mcp
+INFO  [2025-11-13 21:46:24,055] c.e.a.registry.MCPDiscoveryResource - Discovering tools from MCP server: http://localhost:3000/mcp
+INFO  [2025-11-13 21:46:24,055] c.e.a.registry.MCPDiscoveryResource - Adjusted SSE URL to: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:46:24,056] c.e.agent.registry.StandardMCPClient - Connecting to MCP server via SSE: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:46:24,056] c.e.agent.registry.StandardMCPClient - Building MCP client with timeout: 30s
+INFO  [2025-11-13 21:46:24,056] c.e.agent.registry.StandardMCPClient - Initializing MCP client connection to: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:46:24,074] i.m.client.LifecycleInitializer - Server response with Protocol: 2024-11-05, Capabilities: ServerCapabilities[completions=null, experimental=null, logging=null, prompts=null, resources=null, tools=ToolCapabilities[listChanged=null]], Info: Implementation[name=simple-mcp-server, title=null, version=1.0.0] and Instructions null
+INFO  [2025-11-13 21:46:24,077] c.e.agent.registry.StandardMCPClient - Successfully connected to MCP server: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:46:24,086] c.e.a.registry.MCPDiscoveryResource - Discovered 5 tools from http://localhost:3000/mcp
+INFO  [2025-11-13 21:46:24,087] c.e.agent.registry.StandardMCPClient - Closed MCP client connection: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:49:46,486] c.example.agent.registry.MCPClient - Querying MCP server: http://localhost:3000/mcp
+INFO  [2025-11-13 21:49:46,496] c.e.a.registry.MCPDiscoveryResource - Discovering tools from MCP server: http://localhost:3000/mcp
+INFO  [2025-11-13 21:49:46,496] c.e.a.registry.MCPDiscoveryResource - Adjusted SSE URL to: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:49:46,498] c.e.agent.registry.StandardMCPClient - Connecting to MCP server via SSE: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:49:46,498] c.e.agent.registry.StandardMCPClient - Building MCP client with timeout: 30s
+INFO  [2025-11-13 21:49:46,499] c.e.agent.registry.StandardMCPClient - Initializing MCP client connection to: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:49:46,568] i.m.client.LifecycleInitializer - Server response with Protocol: 2024-11-05, Capabilities: ServerCapabilities[completions=null, experimental=null, logging=null, prompts=null, resources=null, tools=ToolCapabilities[listChanged=null]], Info: Implementation[name=simple-mcp-server, title=null, version=1.0.0] and Instructions null
+INFO  [2025-11-13 21:49:46,575] c.e.agent.registry.StandardMCPClient - Successfully connected to MCP server: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:49:46,586] c.e.a.registry.MCPDiscoveryResource - Discovered 5 tools from http://localhost:3000/mcp
+INFO  [2025-11-13 21:49:46,587] c.e.agent.registry.StandardMCPClient - Closed MCP client connection: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:49:46,995] c.example.agent.registry.MCPClient - Querying MCP server: http://localhost:3000/mcp
+INFO  [2025-11-13 21:49:46,999] c.e.a.registry.MCPDiscoveryResource - Discovering tools from MCP server: http://localhost:3000/mcp
+INFO  [2025-11-13 21:49:46,999] c.e.a.registry.MCPDiscoveryResource - Adjusted SSE URL to: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:49:47,000] c.e.agent.registry.StandardMCPClient - Connecting to MCP server via SSE: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:49:47,000] c.e.agent.registry.StandardMCPClient - Building MCP client with timeout: 30s
+INFO  [2025-11-13 21:49:47,000] c.e.agent.registry.StandardMCPClient - Initializing MCP client connection to: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:49:47,015] i.m.client.LifecycleInitializer - Server response with Protocol: 2024-11-05, Capabilities: ServerCapabilities[completions=null, experimental=null, logging=null, prompts=null, resources=null, tools=ToolCapabilities[listChanged=null]], Info: Implementation[name=simple-mcp-server, title=null, version=1.0.0] and Instructions null
+INFO  [2025-11-13 21:49:47,017] c.e.agent.registry.StandardMCPClient - Successfully connected to MCP server: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:49:47,029] c.e.a.registry.MCPDiscoveryResource - Discovered 5 tools from http://localhost:3000/mcp
+INFO  [2025-11-13 21:49:47,029] c.e.agent.registry.StandardMCPClient - Closed MCP client connection: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:51:44,276] c.example.agent.registry.MCPClient - Querying MCP server: http://localhost:3000/mcp
+INFO  [2025-11-13 21:51:44,283] c.e.a.registry.MCPDiscoveryResource - Discovering tools from MCP server: http://localhost:3000/mcp
+INFO  [2025-11-13 21:51:44,283] c.e.a.registry.MCPDiscoveryResource - Adjusted SSE URL to: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:51:44,284] c.e.agent.registry.StandardMCPClient - Connecting to MCP server via SSE: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:51:44,284] c.e.agent.registry.StandardMCPClient - Building MCP client with timeout: 30s
+INFO  [2025-11-13 21:51:44,284] c.e.agent.registry.StandardMCPClient - Initializing MCP client connection to: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:51:44,305] i.m.client.LifecycleInitializer - Server response with Protocol: 2024-11-05, Capabilities: ServerCapabilities[completions=null, experimental=null, logging=null, prompts=null, resources=null, tools=ToolCapabilities[listChanged=null]], Info: Implementation[name=simple-mcp-server, title=null, version=1.0.0] and Instructions null
+INFO  [2025-11-13 21:51:44,308] c.e.agent.registry.StandardMCPClient - Successfully connected to MCP server: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:51:44,346] c.e.a.registry.MCPDiscoveryResource - Discovered 5 tools from http://localhost:3000/mcp
+INFO  [2025-11-13 21:51:44,346] c.e.agent.registry.StandardMCPClient - Closed MCP client connection: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:51:44,702] c.example.agent.registry.MCPClient - Querying MCP server: http://localhost:3000/mcp
+INFO  [2025-11-13 21:51:44,707] c.e.a.registry.MCPDiscoveryResource - Discovering tools from MCP server: http://localhost:3000/mcp
+INFO  [2025-11-13 21:51:44,707] c.e.a.registry.MCPDiscoveryResource - Adjusted SSE URL to: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:51:44,707] c.e.agent.registry.StandardMCPClient - Connecting to MCP server via SSE: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:51:44,707] c.e.agent.registry.StandardMCPClient - Building MCP client with timeout: 30s
+INFO  [2025-11-13 21:51:44,708] c.e.agent.registry.StandardMCPClient - Initializing MCP client connection to: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:51:44,726] i.m.client.LifecycleInitializer - Server response with Protocol: 2024-11-05, Capabilities: ServerCapabilities[completions=null, experimental=null, logging=null, prompts=null, resources=null, tools=ToolCapabilities[listChanged=null]], Info: Implementation[name=simple-mcp-server, title=null, version=1.0.0] and Instructions null
+INFO  [2025-11-13 21:51:44,735] c.e.agent.registry.StandardMCPClient - Successfully connected to MCP server: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:51:44,748] c.e.a.registry.MCPDiscoveryResource - Discovered 5 tools from http://localhost:3000/mcp
+INFO  [2025-11-13 21:51:44,749] c.e.agent.registry.StandardMCPClient - Closed MCP client connection: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:51:45,046] c.example.agent.registry.MCPClient - Querying MCP server: http://localhost:3000/mcp
+INFO  [2025-11-13 21:51:45,049] c.e.a.registry.MCPDiscoveryResource - Discovering tools from MCP server: http://localhost:3000/mcp
+INFO  [2025-11-13 21:51:45,050] c.e.a.registry.MCPDiscoveryResource - Adjusted SSE URL to: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:51:45,050] c.e.agent.registry.StandardMCPClient - Connecting to MCP server via SSE: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:51:45,050] c.e.agent.registry.StandardMCPClient - Building MCP client with timeout: 30s
+INFO  [2025-11-13 21:51:45,050] c.e.agent.registry.StandardMCPClient - Initializing MCP client connection to: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:51:45,074] i.m.client.LifecycleInitializer - Server response with Protocol: 2024-11-05, Capabilities: ServerCapabilities[completions=null, experimental=null, logging=null, prompts=null, resources=null, tools=ToolCapabilities[listChanged=null]], Info: Implementation[name=simple-mcp-server, title=null, version=1.0.0] and Instructions null
+INFO  [2025-11-13 21:51:45,079] c.e.agent.registry.StandardMCPClient - Successfully connected to MCP server: http://localhost:3000/mcp/sse
+INFO  [2025-11-13 21:51:45,092] c.e.a.registry.MCPDiscoveryResource - Discovered 5 tools from http://localhost:3000/mcp
+INFO  [2025-11-13 21:51:45,092] c.e.agent.registry.StandardMCPClient - Closed MCP client connection: http://localhost:3000/mcp/sse
+INFO  [2025-11-16 10:56:57,126] c.example.agent.registry.MCPClient - Querying MCP server: http://localhost:3000/mcp
+INFO  [2025-11-16 10:56:57,166] c.e.a.registry.MCPDiscoveryResource - Discovering tools from MCP server: http://localhost:3000/mcp
+INFO  [2025-11-16 10:56:57,166] c.e.a.registry.MCPDiscoveryResource - Adjusted SSE URL to: http://localhost:3000/mcp/sse
+INFO  [2025-11-16 10:56:57,176] c.e.agent.registry.StandardMCPClient - Connecting to MCP server via SSE: http://localhost:3000/mcp/sse
+INFO  [2025-11-16 10:56:57,176] c.e.agent.registry.StandardMCPClient - Building MCP client with timeout: 30s
+INFO  [2025-11-16 10:56:57,179] c.e.agent.registry.StandardMCPClient - Initializing MCP client connection to: http://localhost:3000/mcp/sse
+INFO  [2025-11-16 10:56:57,319] i.m.client.LifecycleInitializer - Server response with Protocol: 2024-11-05, Capabilities: ServerCapabilities[completions=null, experimental=null, logging=null, prompts=null, resources=null, tools=ToolCapabilities[listChanged=null]], Info: Implementation[name=simple-mcp-server, title=null, version=1.0.0] and Instructions null
+INFO  [2025-11-16 10:56:57,328] c.e.agent.registry.StandardMCPClient - Successfully connected to MCP server: http://localhost:3000/mcp/sse
+INFO  [2025-11-16 10:56:57,342] c.e.a.registry.MCPDiscoveryResource - Discovered 5 tools from http://localhost:3000/mcp
+INFO  [2025-11-16 10:56:57,344] c.e.agent.registry.StandardMCPClient - Closed MCP client connection: http://localhost:3000/mcp/sse
+INFO  [2025-11-16 11:04:20,967] c.e.agent.registry.A2AAgentResource - Registering A2A agent from URL: http://localhost:8000
+INFO  [2025-11-16 11:04:20,968] c.e.agent.registry.A2AClientService - Connecting to A2A agent at: http://localhost:8000
+ERROR [2025-11-16 11:04:20,987] c.e.agent.registry.A2AClientService - Failed to connect to A2A agent at http://localhost:8000: Failed to fetch agent card from any known endpoint. Last error: All endpoints returned non-200 status
+java.lang.Exception: Failed to fetch agent card from any known endpoint. Last error: All endpoints returned non-200 status
+	at com.example.agent.registry.A2AClientService.fetchAgentCard(A2AClientService.java:183)
+	at com.example.agent.registry.A2AClientService.connectToAgent(A2AClientService.java:37)
+	at com.example.agent.registry.A2AAgentResource.registerAgent(A2AAgentResource.java:43)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.glassfish.jersey.server.model.internal.ResourceMethodInvocationHandlerFactory.lambda$static$0(ResourceMethodInvocationHandlerFactory.java:52)
+	at org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher$1.run(AbstractJavaResourceMethodDispatcher.java:146)
+	at org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.invoke(AbstractJavaResourceMethodDispatcher.java:189)
+	at org.glassfish.jersey.server.model.internal.JavaResourceMethodDispatcherProvider$ResponseOutInvoker.doDispatch(JavaResourceMethodDispatcherProvider.java:176)
+	at org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.dispatch(AbstractJavaResourceMethodDispatcher.java:93)
+	at org.glassfish.jersey.server.model.ResourceMethodInvoker.invoke(ResourceMethodInvoker.java:478)
+	at org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:400)
+	at org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:81)
+	at org.glassfish.jersey.server.ServerRuntime$1.run(ServerRuntime.java:256)
+	at org.glassfish.jersey.internal.Errors$1.call(Errors.java:248)
+	at org.glassfish.jersey.internal.Errors$1.call(Errors.java:244)
+	at org.glassfish.jersey.internal.Errors.process(Errors.java:292)
+	at org.glassfish.jersey.internal.Errors.process(Errors.java:274)
+	at org.glassfish.jersey.internal.Errors.process(Errors.java:244)
+	at org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:265)
+	at org.glassfish.jersey.server.ServerRuntime.process(ServerRuntime.java:235)
+	at org.glassfish.jersey.server.ApplicationHandler.handle(ApplicationHandler.java:684)
+	at org.glassfish.jersey.servlet.WebComponent.serviceImpl(WebComponent.java:394)
+	at org.glassfish.jersey.servlet.WebComponent.service(WebComponent.java:346)
+	at org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:358)
+	at org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:311)
+	at org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:205)
+	at org.eclipse.jetty.servlet.ServletHolder.handle(ServletHolder.java:764)
+	at org.eclipse.jetty.servlet.ServletHandler$ChainEnd.doFilter(ServletHandler.java:1665)
+	at io.dropwizard.servlets.ThreadNameFilter.doFilter(ThreadNameFilter.java:35)
+	at org.eclipse.jetty.servlet.FilterHolder.doFilter(FilterHolder.java:202)
+	at org.eclipse.jetty.servlet.ServletHandler$Chain.doFilter(ServletHandler.java:1635)
+	at io.dropwizard.jersey.filter.AllowedMethodsFilter.handle(AllowedMethodsFilter.java:46)
+	at io.dropwizard.jersey.filter.AllowedMethodsFilter.doFilter(AllowedMethodsFilter.java:40)
+	at org.eclipse.jetty.servlet.FilterHolder.doFilter(FilterHolder.java:202)
+	at org.eclipse.jetty.servlet.ServletHandler$Chain.doFilter(ServletHandler.java:1635)
+	at org.eclipse.jetty.servlets.CrossOriginFilter.handle(CrossOriginFilter.java:314)
+	at org.eclipse.jetty.servlets.CrossOriginFilter.doFilter(CrossOriginFilter.java:267)
+	at org.eclipse.jetty.servlet.FilterHolder.doFilter(FilterHolder.java:202)
+	at org.eclipse.jetty.servlet.ServletHandler$Chain.doFilter(ServletHandler.java:1635)
+	at org.eclipse.jetty.servlet.ServletHandler.doHandle(ServletHandler.java:527)
+	at org.eclipse.jetty.server.handler.ScopedHandler.nextHandle(ScopedHandler.java:221)
+	at org.eclipse.jetty.server.handler.ContextHandler.doHandle(ContextHandler.java:1384)
+	at org.eclipse.jetty.server.handler.ScopedHandler.nextScope(ScopedHandler.java:176)
+	at org.eclipse.jetty.servlet.ServletHandler.doScope(ServletHandler.java:484)
+	at org.eclipse.jetty.server.handler.ScopedHandler.nextScope(ScopedHandler.java:174)
+	at org.eclipse.jetty.server.handler.ContextHandler.doScope(ContextHandler.java:1306)
+	at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:129)
+	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:122)
+	at io.dropwizard.metrics.jetty10.InstrumentedHandler.handle(InstrumentedHandler.java:314)
+	at io.dropwizard.jetty.RoutingHandler.handle(RoutingHandler.java:52)
+	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:122)
+	at org.eclipse.jetty.server.handler.gzip.GzipHandler.handle(GzipHandler.java:822)
+	at io.dropwizard.jetty.ZipExceptionHandlingGzipHandler.handle(ZipExceptionHandlingGzipHandler.java:26)
+	at org.eclipse.jetty.server.handler.StatisticsHandler.handle(StatisticsHandler.java:173)
+	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:122)
+	at org.eclipse.jetty.server.Server.handle(Server.java:563)
+	at org.eclipse.jetty.server.HttpChannel$RequestDispatchable.dispatch(HttpChannel.java:1598)
+	at org.eclipse.jetty.server.HttpChannel.dispatch(HttpChannel.java:753)
+	at org.eclipse.jetty.server.HttpChannel.handle(HttpChannel.java:501)
+	at org.eclipse.jetty.server.HttpConnection.onFillable(HttpConnection.java:287)
+	at org.eclipse.jetty.io.AbstractConnection$ReadCallback.succeeded(AbstractConnection.java:314)
+	at org.eclipse.jetty.io.FillInterest.fillable(FillInterest.java:100)
+	at org.eclipse.jetty.io.SelectableChannelEndPoint$1.run(SelectableChannelEndPoint.java:53)
+	at org.eclipse.jetty.util.thread.strategy.AdaptiveExecutionStrategy.runTask(AdaptiveExecutionStrategy.java:421)
+	at org.eclipse.jetty.util.thread.strategy.AdaptiveExecutionStrategy.consumeTask(AdaptiveExecutionStrategy.java:390)
+	at org.eclipse.jetty.util.thread.strategy.AdaptiveExecutionStrategy.tryProduce(AdaptiveExecutionStrategy.java:277)
+	at org.eclipse.jetty.util.thread.strategy.AdaptiveExecutionStrategy.run(AdaptiveExecutionStrategy.java:199)
+	at org.eclipse.jetty.util.thread.ReservedThreadExecutor$ReservedThread.run(ReservedThreadExecutor.java:411)
+	at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:969)
+	at org.eclipse.jetty.util.thread.QueuedThreadPool$Runner.doRunJob(QueuedThreadPool.java:1194)
+	at org.eclipse.jetty.util.thread.QueuedThreadPool$Runner.run(QueuedThreadPool.java:1149)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+ERROR [2025-11-16 11:04:21,000] c.e.agent.registry.A2AAgentResource - Failed to register A2A agent: Failed to connect to A2A agent: Failed to fetch agent card from any known endpoint. Last error: All endpoints returned non-200 status
+java.lang.Exception: Failed to connect to A2A agent: Failed to fetch agent card from any known endpoint. Last error: All endpoints returned non-200 status
+	at com.example.agent.registry.A2AClientService.connectToAgent(A2AClientService.java:56)
+	at com.example.agent.registry.A2AAgentResource.registerAgent(A2AAgentResource.java:43)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.glassfish.jersey.server.model.internal.ResourceMethodInvocationHandlerFactory.lambda$static$0(ResourceMethodInvocationHandlerFactory.java:52)
+	at org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher$1.run(AbstractJavaResourceMethodDispatcher.java:146)
+	at org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.invoke(AbstractJavaResourceMethodDispatcher.java:189)
+	at org.glassfish.jersey.server.model.internal.JavaResourceMethodDispatcherProvider$ResponseOutInvoker.doDispatch(JavaResourceMethodDispatcherProvider.java:176)
+	at org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.dispatch(AbstractJavaResourceMethodDispatcher.java:93)
+	at org.glassfish.jersey.server.model.ResourceMethodInvoker.invoke(ResourceMethodInvoker.java:478)
+	at org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:400)
+	at org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:81)
+	at org.glassfish.jersey.server.ServerRuntime$1.run(ServerRuntime.java:256)
+	at org.glassfish.jersey.internal.Errors$1.call(Errors.java:248)
+	at org.glassfish.jersey.internal.Errors$1.call(Errors.java:244)
+	at org.glassfish.jersey.internal.Errors.process(Errors.java:292)
+	at org.glassfish.jersey.internal.Errors.process(Errors.java:274)
+	at org.glassfish.jersey.internal.Errors.process(Errors.java:244)
+	at org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:265)
+	at org.glassfish.jersey.server.ServerRuntime.process(ServerRuntime.java:235)
+	at org.glassfish.jersey.server.ApplicationHandler.handle(ApplicationHandler.java:684)
+	at org.glassfish.jersey.servlet.WebComponent.serviceImpl(WebComponent.java:394)
+	at org.glassfish.jersey.servlet.WebComponent.service(WebComponent.java:346)
+	at org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:358)
+	at org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:311)
+	at org.glassfish.jersey.servlet.ServletContainer.service(ServletContainer.java:205)
+	at org.eclipse.jetty.servlet.ServletHolder.handle(ServletHolder.java:764)
+	at org.eclipse.jetty.servlet.ServletHandler$ChainEnd.doFilter(ServletHandler.java:1665)
+	at io.dropwizard.servlets.ThreadNameFilter.doFilter(ThreadNameFilter.java:35)
+	at org.eclipse.jetty.servlet.FilterHolder.doFilter(FilterHolder.java:202)
+	at org.eclipse.jetty.servlet.ServletHandler$Chain.doFilter(ServletHandler.java:1635)
+	at io.dropwizard.jersey.filter.AllowedMethodsFilter.handle(AllowedMethodsFilter.java:46)
+	at io.dropwizard.jersey.filter.AllowedMethodsFilter.doFilter(AllowedMethodsFilter.java:40)
+	at org.eclipse.jetty.servlet.FilterHolder.doFilter(FilterHolder.java:202)
+	at org.eclipse.jetty.servlet.ServletHandler$Chain.doFilter(ServletHandler.java:1635)
+	at org.eclipse.jetty.servlets.CrossOriginFilter.handle(CrossOriginFilter.java:314)
+	at org.eclipse.jetty.servlets.CrossOriginFilter.doFilter(CrossOriginFilter.java:267)
+	at org.eclipse.jetty.servlet.FilterHolder.doFilter(FilterHolder.java:202)
+	at org.eclipse.jetty.servlet.ServletHandler$Chain.doFilter(ServletHandler.java:1635)
+	at org.eclipse.jetty.servlet.ServletHandler.doHandle(ServletHandler.java:527)
+	at org.eclipse.jetty.server.handler.ScopedHandler.nextHandle(ScopedHandler.java:221)
+	at org.eclipse.jetty.server.handler.ContextHandler.doHandle(ContextHandler.java:1384)
+	at org.eclipse.jetty.server.handler.ScopedHandler.nextScope(ScopedHandler.java:176)
+	at org.eclipse.jetty.servlet.ServletHandler.doScope(ServletHandler.java:484)
+	at org.eclipse.jetty.server.handler.ScopedHandler.nextScope(ScopedHandler.java:174)
+	at org.eclipse.jetty.server.handler.ContextHandler.doScope(ContextHandler.java:1306)
+	at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:129)
+	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:122)
+	at io.dropwizard.metrics.jetty10.InstrumentedHandler.handle(InstrumentedHandler.java:314)
+	at io.dropwizard.jetty.RoutingHandler.handle(RoutingHandler.java:52)
+	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:122)
+	at org.eclipse.jetty.server.handler.gzip.GzipHandler.handle(GzipHandler.java:822)
+	at io.dropwizard.jetty.ZipExceptionHandlingGzipHandler.handle(ZipExceptionHandlingGzipHandler.java:26)
+	at org.eclipse.jetty.server.handler.StatisticsHandler.handle(StatisticsHandler.java:173)
+	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:122)
+	at org.eclipse.jetty.server.Server.handle(Server.java:563)
+	at org.eclipse.jetty.server.HttpChannel$RequestDispatchable.dispatch(HttpChannel.java:1598)
+	at org.eclipse.jetty.server.HttpChannel.dispatch(HttpChannel.java:753)
+	at org.eclipse.jetty.server.HttpChannel.handle(HttpChannel.java:501)
+	at org.eclipse.jetty.server.HttpConnection.onFillable(HttpConnection.java:287)
+	at org.eclipse.jetty.io.AbstractConnection$ReadCallback.succeeded(AbstractConnection.java:314)
+	at org.eclipse.jetty.io.FillInterest.fillable(FillInterest.java:100)
+	at org.eclipse.jetty.io.SelectableChannelEndPoint$1.run(SelectableChannelEndPoint.java:53)
+	at org.eclipse.jetty.util.thread.strategy.AdaptiveExecutionStrategy.runTask(AdaptiveExecutionStrategy.java:421)
+	at org.eclipse.jetty.util.thread.strategy.AdaptiveExecutionStrategy.consumeTask(AdaptiveExecutionStrategy.java:390)
+	at org.eclipse.jetty.util.thread.strategy.AdaptiveExecutionStrategy.tryProduce(AdaptiveExecutionStrategy.java:277)
+	at org.eclipse.jetty.util.thread.strategy.AdaptiveExecutionStrategy.run(AdaptiveExecutionStrategy.java:199)
+	at org.eclipse.jetty.util.thread.ReservedThreadExecutor$ReservedThread.run(ReservedThreadExecutor.java:411)
+	at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:969)
+	at org.eclipse.jetty.util.thread.QueuedThreadPool$Runner.doRunJob(QueuedThreadPool.java:1194)
+	at org.eclipse.jetty.util.thread.QueuedThreadPool$Runner.run(QueuedThreadPool.java:1149)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+Caused by: java.lang.Exception: Failed to fetch agent card from any known endpoint. Last error: All endpoints returned non-200 status
+	at com.example.agent.registry.A2AClientService.fetchAgentCard(A2AClientService.java:183)
+	at com.example.agent.registry.A2AClientService.connectToAgent(A2AClientService.java:37)
+	... 71 common frames omitted
+INFO  [2025-11-16 11:33:29,192] org.eclipse.jetty.server.Server - Stopped Server@750ff7d3{STOPPING}[10.0.20,sto=30000]
+INFO  [2025-11-16 11:33:29,201] org.eclipse.jetty.server.Server - Shutdown Server@750ff7d3{STOPPING}[10.0.20,sto=30000]
+INFO  [2025-11-16 11:33:29,302] o.e.jetty.server.AbstractConnector - Stopped application@7158daf2{HTTP/1.1, (http/1.1)}{0.0.0.0:8080}
+INFO  [2025-11-16 11:33:29,305] o.e.jetty.server.AbstractConnector - Stopped admin@10f19647{HTTP/1.1, (http/1.1)}{0.0.0.0:8081}
+INFO  [2025-11-16 11:33:29,323] o.e.j.server.handler.ContextHandler - Stopped i.d.j.MutableServletContextHandler@1cc8416a{/,null,STOPPED}
+INFO  [2025-11-16 11:33:29,395] o.e.j.server.handler.ContextHandler - Stopped i.d.j.MutableServletContextHandler@41f4039e{/,null,STOPPED}

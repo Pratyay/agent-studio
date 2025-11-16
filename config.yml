@@ -1,0 +1,39 @@
+# Dropwizard configuration for Agent Registry
+
+# Redis Configuration
+redisHost: localhost
+redisPort: 6379
+
+# MCP Server Configuration
+# To configure MCP servers, add the mcpServers field to AgentRegistryConfiguration.java first
+# Then uncomment and configure servers here:
+# mcpServers:
+#   - name: weather-server
+#     transport: stdio
+#     command: python
+#     args:
+#       - "-m"
+#       - "weather_mcp_server"
+#     environment:
+#       API_KEY: ${WEATHER_API_KEY}
+
+# Server Configuration
+server:
+  applicationConnectors:
+    - type: http
+      port: 8080
+  adminConnectors:
+    - type: http
+      port: 8081
+  requestLog:
+    appenders: []
+
+# Logging Configuration
+logging:
+  level: INFO
+  appenders:
+    - type: console
+      threshold: ALL
+      timeZone: UTC
+      target: stdout
+      logFormat: "%-5level [%date{ISO8601}] %logger{36} - %msg%n"
