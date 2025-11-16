@@ -1,1 +1,43 @@
+# Environment variables
 .env
+
+# Maven build artifacts
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Maven specific
+dependency-reduced-pom.xml
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# Redis database dumps
+*.rdb
+dump.rdb
+
+# Log files
+*.log
+logs/
+server.log
+
+# IDE specific files
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+.DS_Store
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# OS specific
+Thumbs.db
