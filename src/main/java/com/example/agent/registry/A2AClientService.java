@@ -231,7 +231,7 @@ public class A2AClientService {
      * Send a message to an A2A agent and wait for response
      */
     public String sendMessage(String agentId, String messageText) throws Exception {
-        return sendMessage(agentId, messageText, 30); // 30 second timeout
+        return sendMessage(agentId, messageText, 60); // 60 second timeout
     }
     
     /**

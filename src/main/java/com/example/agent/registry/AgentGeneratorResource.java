@@ -15,19 +15,26 @@ public class AgentGeneratorResource {
     
     private final AgentCodeGenerator generator = new AgentCodeGenerator();
     private final ToolRegistry toolRegistry;
+    private final A2AClientService a2aClientService;
     
-    public AgentGeneratorResource(ToolRegistry toolRegistry) {
+    public AgentGeneratorResource(ToolRegistry toolRegistry, A2AClientService a2aClientService) {
         this.toolRegistry = toolRegistry;
+        this.a2aClientService = a2aClientService;
     }
     
     public static class GenerateRequest {
         public String agentName;
         public String description;
+        public String instructions;
         public String packageName;
         public List<String> toolIds;
+        public List<String> subagentIds;
+        public String googleApiKey;
+        public Integer serverPort;
         
         public GenerateRequest() {
             this.toolIds = new ArrayList<>();
+            this.subagentIds = new ArrayList<>();
             this.packageName = "com.example.agent";
         }
     }
@@ -47,12 +54,7 @@ public class AgentGeneratorResource {
                     .build();
             }
             
-            if (request.toolIds == null || request.toolIds.isEmpty()) {
-                return Response.status(Response.Status.BAD_REQUEST)
-                    .type(MediaType.APPLICATION_JSON)
-                    .entity(Map.of("error", "At least one tool must be attached"))
-                    .build();
-            }
+            // Tools and sub-agents are optional - can have one, both, or neither
             
             // Fetch tool metadata
             List<ToolMetadata> tools = new ArrayList<>();
@@ -68,12 +70,32 @@ public class AgentGeneratorResource {
                 }
             }
             
+            // Fetch subagent metadata
+            List<A2AAgentMetadata> subagents = new ArrayList<>();
+            if (request.subagentIds != null && !request.subagentIds.isEmpty()) {
+                for (String subagentId : request.subagentIds) {
+                    A2AAgentMetadata subagent = a2aClientService.getAgent(subagentId);
+                    if (subagent != null) {
+                        subagents.add(subagent);
+                    } else {
+                        return Response.status(Response.Status.BAD_REQUEST)
+                            .type(MediaType.APPLICATION_JSON)
+                            .entity(Map.of("error", "Sub-agent not found: " + subagentId))
+                            .build();
+                    }
+                }
+            }
+            
             // Create generation request
             AgentCodeGenerator.GenerationRequest genRequest = new AgentCodeGenerator.GenerationRequest();
             genRequest.agentName = request.agentName;
             genRequest.description = request.description;
+            genRequest.instructions = request.instructions;
             genRequest.packageName = request.packageName != null ? request.packageName : "com.example.agent";
             genRequest.attachedTools = tools;
+            genRequest.subagents = subagents;
+            genRequest.googleApiKey = request.googleApiKey;
+            genRequest.serverPort = request.serverPort;
             
             // Generate ZIP
             byte[] zipBytes = generator.generateAgentZip(genRequest);

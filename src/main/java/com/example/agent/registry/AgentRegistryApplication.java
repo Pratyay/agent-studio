@@ -53,7 +53,7 @@ public class AgentRegistryApplication extends Application<AgentRegistryConfigura
         final AgentRegistryResource agentResource = new AgentRegistryResource(registry, loader, router);
         final ToolRegistryResource toolResource = new ToolRegistryResource(toolRegistry);
         final MCPDiscoveryResource mcpDiscoveryResource = new MCPDiscoveryResource();
-        final AgentGeneratorResource generatorResource = new AgentGeneratorResource(toolRegistry);
+        final AgentGeneratorResource generatorResource = new AgentGeneratorResource(toolRegistry, a2aClientService);
         final A2AAgentResource a2aAgentResource = new A2AAgentResource(a2aClientService);
         environment.jersey().register(agentResource);
         environment.jersey().register(toolResource);
