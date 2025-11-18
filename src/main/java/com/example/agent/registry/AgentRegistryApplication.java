@@ -42,6 +42,10 @@ public class AgentRegistryApplication extends Application<AgentRegistryConfigura
             configuration.getRedisHost(),
             configuration.getRedisPort()
         );
+        final CallbackRegistry callbackRegistry = new CallbackRegistry(
+            configuration.getRedisHost(),
+            configuration.getRedisPort()
+        );
         final DynamicAgentLoader loader = new DynamicAgentLoader(registry);
         final RegistryAwareRouter router = new RegistryAwareRouter(registry, loader);
         final A2AClientService a2aClientService = new A2AClientService(
@@ -52,11 +56,13 @@ public class AgentRegistryApplication extends Application<AgentRegistryConfigura
         // Register resources
         final AgentRegistryResource agentResource = new AgentRegistryResource(registry, loader, router);
         final ToolRegistryResource toolResource = new ToolRegistryResource(toolRegistry);
+        final CallbackRegistryResource callbackResource = new CallbackRegistryResource(callbackRegistry);
         final MCPDiscoveryResource mcpDiscoveryResource = new MCPDiscoveryResource();
         final AgentGeneratorResource generatorResource = new AgentGeneratorResource(toolRegistry, a2aClientService);
         final A2AAgentResource a2aAgentResource = new A2AAgentResource(a2aClientService);
         environment.jersey().register(agentResource);
         environment.jersey().register(toolResource);
+        environment.jersey().register(callbackResource);
         environment.jersey().register(mcpDiscoveryResource);
         environment.jersey().register(generatorResource);
         environment.jersey().register(a2aAgentResource);
@@ -75,6 +81,7 @@ public class AgentRegistryApplication extends Application<AgentRegistryConfigura
             public void stop() {
                 registry.close();
                 toolRegistry.close();
+                callbackRegistry.close();
                 a2aClientService.close();
             }
         });

@@ -27,11 +27,20 @@ public class AgentCodeGenerator {
         public Integer maxTokens;  // max output tokens
         public Double topP;  // nucleus sampling
         public Integer topK;  // top-k sampling
+        // Callbacks
+        public List<String> beforeAgentCallbacks;  // FQDNs of before-agent callbacks
+        public List<String> afterAgentCallbacks;   // FQDNs of after-agent callbacks
+        
+        // Transport protocols
+        public List<String> transportProtocols;    // A2A transport protocols (JSONRPC, GRPC, REST)
         
         public GenerationRequest() {
             this.attachedTools = new ArrayList<>();
             this.subagentIds = new ArrayList<>();
             this.subagents = new ArrayList<>();
+            this.beforeAgentCallbacks = new ArrayList<>();
+            this.afterAgentCallbacks = new ArrayList<>();
+            this.transportProtocols = new ArrayList<>();
             // Defaults
             this.model = "gemini-2.5-flash";
             this.temperature = 1.0;
@@ -107,15 +116,35 @@ public class AgentCodeGenerator {
         code.append("import java.util.*;\n");
         code.append("import java.util.concurrent.*;\n");
         code.append("import java.util.concurrent.TimeoutException;\n");
+        code.append("import java.util.concurrent.TimeUnit;\n");
         code.append("import java.util.function.BiConsumer;\n");
         code.append("import java.util.function.Consumer;\n");
         code.append("import io.a2a.client.Client;\n");
+        code.append("import io.a2a.client.ClientBuilder;\n");
         code.append("import io.a2a.client.ClientEvent;\n");
         code.append("import io.a2a.client.MessageEvent;\n");
         code.append("import io.a2a.client.config.ClientConfig;\n");
         code.append("import io.a2a.client.http.A2ACardResolver;\n");
-        code.append("import io.a2a.client.transport.jsonrpc.JSONRPCTransport;\n");
-        code.append("import io.a2a.client.transport.jsonrpc.JSONRPCTransportConfig;\n");
+        
+        // Import transport classes based on selected protocols
+        boolean hasJsonRpc = request.transportProtocols == null || request.transportProtocols.isEmpty() || 
+                            request.transportProtocols.contains("JSONRPC");
+        boolean hasRest = request.transportProtocols != null && request.transportProtocols.contains("REST");
+        boolean hasGrpc = request.transportProtocols != null && request.transportProtocols.contains("GRPC");
+        
+        if (hasJsonRpc) {
+            code.append("import io.a2a.client.transport.jsonrpc.JSONRPCTransport;\n");
+            code.append("import io.a2a.client.transport.jsonrpc.JSONRPCTransportConfig;\n");
+        }
+        if (hasRest) {
+            code.append("import io.a2a.client.transport.rest.RestTransport;\n");
+            code.append("import io.a2a.client.transport.rest.RestTransportConfig;\n");
+        }
+        if (hasGrpc) {
+            code.append("import io.a2a.client.transport.grpc.GrpcTransport;\n");
+            code.append("import io.a2a.client.transport.grpc.GrpcTransportConfig;\n");
+        }
+        
         code.append("import io.a2a.spec.AgentCard;\n");
         code.append("import io.a2a.spec.Message;\n");
         code.append("import io.a2a.spec.Task;\n");
@@ -126,7 +155,20 @@ public class AgentCodeGenerator {
         code.append("import com.google.adk.agents.RunConfig;\n");
         code.append("import com.google.genai.types.Content;\n");
         code.append("import com.google.genai.types.Part;\n");
-        code.append("import io.reactivex.rxjava3.core.Flowable;\n\n");
+        code.append("import io.reactivex.rxjava3.core.Flowable;\n");
+        
+        // Add callback imports if any callbacks are configured
+        if (request.beforeAgentCallbacks != null && !request.beforeAgentCallbacks.isEmpty()) {
+            for (String callbackFqdn : request.beforeAgentCallbacks) {
+                code.append("import ").append(callbackFqdn).append(";\n");
+            }
+        }
+        if (request.afterAgentCallbacks != null && !request.afterAgentCallbacks.isEmpty()) {
+            for (String callbackFqdn : request.afterAgentCallbacks) {
+                code.append("import ").append(callbackFqdn).append(";\n");
+            }
+        }
+        code.append("\n");
         
         code.append("/**\n");
         code.append(" * ").append(request.description != null ? request.description : "Auto-generated agent").append("\n");
@@ -233,6 +275,38 @@ public class AgentCodeGenerator {
         // Register all tools with the agent
         if (hasMcpTools || hasSubAgents) {
             code.append("                .tools(allTools)  // Register all MCP toolsets and sub-agent tools\n");
+        }
+        
+        // Register callbacks
+        boolean hasCallbacks = (request.beforeAgentCallbacks != null && !request.beforeAgentCallbacks.isEmpty()) ||
+                              (request.afterAgentCallbacks != null && !request.afterAgentCallbacks.isEmpty());
+        
+        if (request.beforeAgentCallbacks != null && !request.beforeAgentCallbacks.isEmpty()) {
+            code.append("                .beforeAgentCallback(List.of(\n");
+            for (int i = 0; i < request.beforeAgentCallbacks.size(); i++) {
+                String fqdn = request.beforeAgentCallbacks.get(i);
+                String callbackClassName = fqdn.substring(fqdn.lastIndexOf('.') + 1);
+                code.append("                    new ").append(callbackClassName).append("()");
+                if (i < request.beforeAgentCallbacks.size() - 1) {
+                    code.append(",");
+                }
+                code.append("\n");
+            }
+            code.append("                ))\n");
+        }
+        
+        if (request.afterAgentCallbacks != null && !request.afterAgentCallbacks.isEmpty()) {
+            code.append("                .afterAgentCallback(List.of(\n");
+            for (int i = 0; i < request.afterAgentCallbacks.size(); i++) {
+                String fqdn = request.afterAgentCallbacks.get(i);
+                String callbackClassName = fqdn.substring(fqdn.lastIndexOf('.') + 1);
+                code.append("                    new ").append(callbackClassName).append("()");
+                if (i < request.afterAgentCallbacks.size() - 1) {
+                    code.append(",");
+                }
+                code.append("\n");
+            }
+            code.append("                ))\n");
         }
         
         // Note: temperature, topP, topK, and maxTokens are not supported in Google ADK 0.3.0
@@ -346,13 +420,29 @@ public class AgentCodeGenerator {
             code.append("                    System.out.println(\"[A2A Error] \" + error.getClass().getSimpleName() + \": \" + error.getMessage());\n");
             code.append("                };\n\n");
             code.append("                // Build client with shared consumer\n");
-            code.append("                Client client = Client\n");
+            code.append("                ClientBuilder clientBuilder = Client\n");
             code.append("                    .builder(agentCard)\n");
             code.append("                    .clientConfig(clientConfig)\n");
             code.append("                    .addConsumers(consumers)\n");
-            code.append("                    .streamingErrorHandler(errorHandler)\n");
-            code.append("                    .withTransport(JSONRPCTransport.class, new JSONRPCTransportConfig())\n");
-            code.append("                    .build();\n\n");
+            code.append("                    .streamingErrorHandler(errorHandler);\n\n");
+            
+            // Add transport protocols
+            code.append("                // Configure transport protocols\n");
+            if (hasJsonRpc) {
+                code.append("                clientBuilder.withTransport(JSONRPCTransport.class, new JSONRPCTransportConfig());\n");
+            }
+            if (hasRest) {
+                code.append("                clientBuilder.withTransport(RestTransport.class, new RestTransportConfig());\n");
+            }
+            if (hasGrpc) {
+                code.append("                clientBuilder.withTransport(GrpcTransport.class, new GrpcTransportConfig());\n");
+            }
+            // Default to JSON-RPC if no transport specified
+            if (!hasJsonRpc && !hasRest && !hasGrpc) {
+                code.append("                clientBuilder.withTransport(JSONRPCTransport.class, new JSONRPCTransportConfig());\n");
+            }
+            
+            code.append("\n                Client client = clientBuilder.build();\n\n");
             code.append("                System.out.println(\"[A2A] Client created successfully with shared consumer\");\n");
             code.append("                return client;\n");
             code.append("            } catch (Exception e) {\n");
@@ -485,6 +575,81 @@ public class AgentCodeGenerator {
         return code.toString();
     }
     
+    private String generateClientTransportDependencies(GenerationRequest request) {
+        StringBuilder deps = new StringBuilder();
+        
+        // Determine which transports to include
+        boolean hasJsonRpc = request.transportProtocols == null || request.transportProtocols.isEmpty() || 
+                            request.transportProtocols.contains("JSONRPC");
+        boolean hasRest = request.transportProtocols != null && request.transportProtocols.contains("REST");
+        boolean hasGrpc = request.transportProtocols != null && request.transportProtocols.contains("GRPC");
+        
+        if (hasJsonRpc) {
+            deps.append("        <!-- A2A Client Transport - JSON-RPC -->\n");
+            deps.append("        <dependency>\n");
+            deps.append("            <groupId>io.github.a2asdk</groupId>\n");
+            deps.append("            <artifactId>a2a-java-sdk-client-transport-jsonrpc</artifactId>\n");
+            deps.append("            <version>${a2a.sdk.version}</version>\n");
+            deps.append("        </dependency>\n\n");
+        }
+        
+        if (hasRest) {
+            deps.append("        <!-- A2A Client Transport - REST -->\n");
+            deps.append("        <dependency>\n");
+            deps.append("            <groupId>io.github.a2asdk</groupId>\n");
+            deps.append("            <artifactId>a2a-java-sdk-client-transport-rest</artifactId>\n");
+            deps.append("            <version>${a2a.sdk.version}</version>\n");
+            deps.append("        </dependency>\n\n");
+        }
+        
+        if (hasGrpc) {
+            deps.append("        <!-- A2A Client Transport - gRPC -->\n");
+            deps.append("        <dependency>\n");
+            deps.append("            <groupId>io.github.a2asdk</groupId>\n");
+            deps.append("            <artifactId>a2a-java-sdk-client-transport-grpc</artifactId>\n");
+            deps.append("            <version>${a2a.sdk.version}</version>\n");
+            deps.append("        </dependency>\n\n");
+        }
+        
+        return deps.toString();
+    }
+    
+    private String generateServerReferenceDependencies(GenerationRequest request) {
+        StringBuilder deps = new StringBuilder();
+        
+        // Determine which transports to include
+        boolean hasJsonRpc = request.transportProtocols == null || request.transportProtocols.isEmpty() || 
+                            request.transportProtocols.contains("JSONRPC");
+        boolean hasRest = request.transportProtocols != null && request.transportProtocols.contains("REST");
+        boolean hasGrpc = request.transportProtocols != null && request.transportProtocols.contains("GRPC");
+        
+        if (hasJsonRpc) {
+            deps.append("        <dependency>\n");
+            deps.append("            <groupId>io.github.a2asdk</groupId>\n");
+            deps.append("            <artifactId>a2a-java-sdk-reference-jsonrpc</artifactId>\n");
+            deps.append("            <version>${a2a.sdk.version}</version>\n");
+            deps.append("        </dependency>\n\n");
+        }
+        
+        if (hasRest) {
+            deps.append("        <dependency>\n");
+            deps.append("            <groupId>io.github.a2asdk</groupId>\n");
+            deps.append("            <artifactId>a2a-java-sdk-reference-rest</artifactId>\n");
+            deps.append("            <version>${a2a.sdk.version}</version>\n");
+            deps.append("        </dependency>\n\n");
+        }
+        
+        if (hasGrpc) {
+            deps.append("        <dependency>\n");
+            deps.append("            <groupId>io.github.a2asdk</groupId>\n");
+            deps.append("            <artifactId>a2a-java-sdk-reference-grpc</artifactId>\n");
+            deps.append("            <version>${a2a.sdk.version}</version>\n");
+            deps.append("        </dependency>\n\n");
+        }
+        
+        return deps.toString();
+    }
+    
     private String generatePomXml(GenerationRequest request) {
         String artifactId = request.agentName.toLowerCase().replace(" ", "-") + "-agent";
         
@@ -539,29 +704,11 @@ public class AgentCodeGenerator {
                "            <artifactId>a2a-java-sdk-client</artifactId>\n" +
                "            <version>${a2a.sdk.version}</version>\n" +
                "        </dependency>\n\n" +
-               "        <!-- A2A Client Transport - JSON-RPC -->\n" +
-               "        <dependency>\n" +
-               "            <groupId>io.github.a2asdk</groupId>\n" +
-               "            <artifactId>a2a-java-sdk-client-transport-jsonrpc</artifactId>\n" +
-               "            <version>${a2a.sdk.version}</version>\n" +
-               "        </dependency>\n\n" +
-               "        <!-- A2A Client Transport - REST -->\n" +
-               "        <dependency>\n" +
-               "            <groupId>io.github.a2asdk</groupId>\n" +
-               "            <artifactId>a2a-java-sdk-client-transport-rest</artifactId>\n" +
-               "            <version>${a2a.sdk.version}</version>\n" +
-               "        </dependency>\n\n" +
-               "        <!-- A2A Java SDK Server (for exposing agent via A2A) -->\n" +
-               "        <dependency>\n" +
-               "            <groupId>io.github.a2asdk</groupId>\n" +
-               "            <artifactId>a2a-java-sdk-reference-jsonrpc</artifactId>\n" +
-               "            <version>${a2a.sdk.version}</version>\n" +
-               "        </dependency>\n\n" +
-               "        <dependency>\n" +
-               "            <groupId>io.github.a2asdk</groupId>\n" +
-               "            <artifactId>a2a-java-sdk-reference-rest</artifactId>\n" +
-               "            <version>${a2a.sdk.version}</version>\n" +
-               "        </dependency>\n\n" +
+               // Add client transport dependencies based on selected protocols
+               generateClientTransportDependencies(request) +
+               "\n        <!-- A2A Java SDK Server (for exposing agent via A2A) -->\n" +
+               // Add server reference dependencies based on selected protocols
+               generateServerReferenceDependencies(request) +
                "        <!-- Google ADK -->\n" +
                "        <dependency>\n" +
                "            <groupId>com.google.adk</groupId>\n" +
@@ -573,6 +720,15 @@ public class AgentCodeGenerator {
                "            <groupId>io.modelcontextprotocol.sdk</groupId>\n" +
                "            <artifactId>mcp</artifactId>\n" +
                "        </dependency>\n" +
+               // Add callbacks dependency if any callbacks are configured
+               ((request.beforeAgentCallbacks != null && !request.beforeAgentCallbacks.isEmpty()) ||
+                (request.afterAgentCallbacks != null && !request.afterAgentCallbacks.isEmpty()) ?
+               "\n        <!-- Agent Studio Callbacks -->\n" +
+               "        <dependency>\n" +
+               "            <groupId>com.example.agent</groupId>\n" +
+               "            <artifactId>agent-studio-callbacks</artifactId>\n" +
+               "            <version>1.0.0</version>\n" +
+               "        </dependency>\n" : "") +
                "    </dependencies>\n\n" +
                "    <build>\n" +
                "        <plugins>\n" +
@@ -769,7 +925,9 @@ public class AgentCodeGenerator {
         code.append("import io.a2a.server.PublicAgentCard;\n");
         code.append("import io.a2a.spec.AgentCapabilities;\n");
         code.append("import io.a2a.spec.AgentCard;\n");
+        code.append("import io.a2a.spec.AgentInterface;\n");
         code.append("import io.a2a.spec.AgentSkill;\n");
+        code.append("import io.a2a.spec.TransportProtocol;\n");
         code.append("import jakarta.enterprise.context.ApplicationScoped;\n");
         code.append("import jakarta.enterprise.inject.Produces;\n");
         code.append("import java.util.*;\n\n");
@@ -797,6 +955,66 @@ public class AgentCodeGenerator {
         code.append("            .defaultInputModes(Collections.singletonList(\"text\"))\n");
         code.append("            .defaultOutputModes(Collections.singletonList(\"text\"))\n");
         code.append("            .skills(createSkills())\n");
+        
+        // Add transport protocols
+        int serverPort = request.serverPort != null ? request.serverPort : 8000;
+        List<String> selectedTransports = new ArrayList<>();
+        
+        // Determine which transports are selected
+        if (request.transportProtocols == null || request.transportProtocols.isEmpty()) {
+            selectedTransports.add("JSONRPC");
+        } else {
+            selectedTransports.addAll(request.transportProtocols);
+        }
+        
+        // First transport is preferred
+        if (!selectedTransports.isEmpty()) {
+            String preferredTransport = selectedTransports.get(0);
+            String preferredProtocol = "";
+            String preferredEndpoint = "";
+            
+            if (preferredTransport.equals("JSONRPC")) {
+                preferredProtocol = "TransportProtocol.JSONRPC";
+                preferredEndpoint = "http://localhost:" + serverPort + "/jsonrpc";
+            } else if (preferredTransport.equals("REST")) {
+                preferredProtocol = "TransportProtocol.HTTP_JSON";
+                preferredEndpoint = "http://localhost:" + serverPort;
+            } else if (preferredTransport.equals("GRPC")) {
+                preferredProtocol = "TransportProtocol.GRPC";
+                preferredEndpoint = "http://localhost:" + serverPort;
+            }
+            
+            code.append("            .preferredTransport(").append(preferredProtocol).append(".asString())\n");
+            
+            // Add additional interfaces for remaining transports
+            if (selectedTransports.size() > 1) {
+                code.append("            .additionalInterfaces(List.of(\n");
+                List<String> additionalInterfaces = new ArrayList<>();
+                
+                for (int i = 1; i < selectedTransports.size(); i++) {
+                    String transport = selectedTransports.get(i);
+                    String protocol = "";
+                    String endpoint = "";
+                    
+                    if (transport.equals("JSONRPC")) {
+                        protocol = "TransportProtocol.JSONRPC";
+                        endpoint = "http://localhost:" + serverPort + "/jsonrpc";
+                    } else if (transport.equals("REST")) {
+                        protocol = "TransportProtocol.HTTP_JSON";
+                        endpoint = "http://localhost:" + serverPort;
+                    } else if (transport.equals("GRPC")) {
+                        protocol = "TransportProtocol.GRPC";
+                        endpoint = "http://localhost:" + serverPort;
+                    }
+                    
+                    additionalInterfaces.add("                new AgentInterface(" + protocol + ".asString(), \"" + endpoint + "\")");
+                }
+                
+                code.append(String.join(",\n", additionalInterfaces));
+                code.append("\n            ))\n");
+            }
+        }
+        
         code.append("            .protocolVersion(\"0.3.0\")\n");
         code.append("            .build();\n");
         code.append("    }\n\n");

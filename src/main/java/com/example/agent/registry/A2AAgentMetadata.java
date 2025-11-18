@@ -45,6 +45,15 @@ public class A2AAgentMetadata {
     @JsonProperty("lastUpdated")
     private long lastUpdated;
     
+    @JsonProperty("preferredTransport")
+    private String preferredTransport;
+    
+    @JsonProperty("additionalInterfaces")
+    private List<Map<String, Object>> additionalInterfaces;
+    
+    @JsonProperty("supportedTransports")
+    private List<String> supportedTransports;
+    
     public A2AAgentMetadata() {
         this.lastUpdated = System.currentTimeMillis();
         this.status = "connected";
@@ -86,4 +95,13 @@ public class A2AAgentMetadata {
     
     public long getLastUpdated() { return lastUpdated; }
     public void setLastUpdated(long lastUpdated) { this.lastUpdated = lastUpdated; }
+    
+    public String getPreferredTransport() { return preferredTransport; }
+    public void setPreferredTransport(String preferredTransport) { this.preferredTransport = preferredTransport; }
+    
+    public List<Map<String, Object>> getAdditionalInterfaces() { return additionalInterfaces; }
+    public void setAdditionalInterfaces(List<Map<String, Object>> additionalInterfaces) { this.additionalInterfaces = additionalInterfaces; }
+    
+    public List<String> getSupportedTransports() { return supportedTransports; }
+    public void setSupportedTransports(List<String> supportedTransports) { this.supportedTransports = supportedTransports; }
 }

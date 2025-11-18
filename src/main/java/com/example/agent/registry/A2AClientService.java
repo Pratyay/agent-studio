@@ -397,6 +397,36 @@ public class A2AClientService {
         metadata.setStatus("connected");
         metadata.setLastUpdated(System.currentTimeMillis());
         
+        // Extract transport protocol information using reflection/JSON
+        try {
+            // Convert AgentCard to JSON and back to extract all fields
+            String cardJson = objectMapper.writeValueAsString(card);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> cardMap = objectMapper.readValue(cardJson, Map.class);
+            
+            if (cardMap.containsKey("preferredTransport")) {
+                metadata.setPreferredTransport((String) cardMap.get("preferredTransport"));
+            }
+            
+            if (cardMap.containsKey("additionalInterfaces")) {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> interfaces = (List<Map<String, Object>>) cardMap.get("additionalInterfaces");
+                if (interfaces != null) {
+                    metadata.setAdditionalInterfaces(interfaces);
+                }
+            }
+            
+            if (cardMap.containsKey("supportedTransports")) {
+                @SuppressWarnings("unchecked")
+                List<String> transports = (List<String>) cardMap.get("supportedTransports");
+                if (transports != null) {
+                    metadata.setSupportedTransports(transports);
+                }
+            }
+        } catch (Exception e) {
+            logger.debug("Could not extract transport protocol info: {}", e.getMessage());
+        }
+        
         return metadata;
     }
     

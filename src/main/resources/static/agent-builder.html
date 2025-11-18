@@ -46,7 +46,7 @@
         
         .main-content {
             display: grid;
-            grid-template-columns: 300px 1fr 350px;
+            grid-template-columns: 280px 1fr 400px;
             gap: 0;
             height: calc(100vh - 180px);
         }
@@ -119,9 +119,41 @@
             position: relative;
         }
         
-        .dropped-component h3 {
-            color: #667eea;
+        .component-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 15px;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .component-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+        }
+        
+        .collapse-icon {
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+        
+        .collapsed .collapse-icon {
+            transform: rotate(-90deg);
+        }
+        
+        .component-body {
+            max-height: 2000px;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            opacity: 1;
+        }
+        
+        .collapsed .component-body {
+            max-height: 0;
+            opacity: 0;
         }
         
         .form-group {
@@ -144,6 +176,14 @@
             border: 1px solid #ddd;
             border-radius: 6px;
             font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
         }
         
         .form-group textarea {
@@ -152,9 +192,6 @@
         }
         
         .remove-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
             background: #ff4444;
             color: white;
             border: none;
@@ -163,6 +200,48 @@
             height: 30px;
             cursor: pointer;
             font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .parameter-row {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        .parameter-row input,
+        .parameter-row select {
+            margin-bottom: 8px;
+        }
+        
+        .remove-param-btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            float: right;
+        }
+        
+        .add-param-btn {
+            width: 100%;
+            padding: 8px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+        
+        .add-param-btn:hover {
+            background: #218838;
         }
         
         .properties-panel {
@@ -172,10 +251,58 @@
             overflow-y: auto;
         }
         
-        .properties-panel h2 {
-            font-size: 18px;
+        .tabs {
+            display: flex;
+            gap: 5px;
             margin-bottom: 15px;
-            color: #333;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .tab {
+            padding: 10px 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .template-selector {
+            margin-bottom: 20px;
+        }
+        
+        .template-btn {
+            width: 100%;
+            padding: 10px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #667eea;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .template-btn:hover {
+            background: #667eea;
+            color: white;
         }
         
         .btn {
@@ -315,6 +442,28 @@
             margin-left: 5px;
             cursor: pointer;
         }
+        
+        .json-preview {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: calc(100vh - 350px);
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .validation-error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -357,12 +506,29 @@
             
             <!-- Properties Panel -->
             <div class="properties-panel">
-                <h2>⚙️ Actions</h2>
-                <button class="btn btn-primary" id="registerBtn">Register Agent</button>
-                <button class="btn btn-secondary" id="clearBtn">Clear Canvas</button>
+                <div class="tabs">
+                    <button class="tab active" data-tab="actions">Actions</button>
+                    <button class="tab" data-tab="agents">Agents</button>
+                    <button class="tab" data-tab="json">JSON</button>
+                </div>
                 
-                <h2 style="margin-top: 30px;">📋 Registered Agents</h2>
-                <div class="agents-list" id="agentsList"></div>
+                <div id="tab-actions" class="tab-content active">
+                    <div class="template-selector">
+                        <button class="template-btn" id="tpl-math">📘 Math Agent Template</button>
+                        <button class="template-btn" id="tpl-empty">🗑️ Clear All</button>
+                    </div>
+                    <button class="btn btn-primary" id="registerBtn">✅ Register Agent</button>
+                    <button class="btn btn-secondary" id="clearBtn">🧹 Clear Canvas</button>
+                    <div id="validationMsg" class="validation-error" style="display:none;"></div>
+                </div>
+                
+                <div id="tab-agents" class="tab-content">
+                    <div class="agents-list" id="agentsList"></div>
+                </div>
+                
+                <div id="tab-json" class="tab-content">
+                    <pre class="json-preview" id="jsonPreview">{}</pre>
+                </div>
             </div>
         </div>
     </div>
@@ -371,16 +537,6 @@
     
     <script>
         const API_BASE = 'http://localhost:8080/api/agents';
-        let agentData = {
-            name: '',
-            description: '',
-            version: '1.0',
-            capabilities: [],
-            toolDefinitions: [],
-            jarPath: '',
-            mainClass: '',
-            config: {}
-        };
         
         // Drag and Drop
         const componentItems = document.querySelectorAll('.component-item');
@@ -416,72 +572,100 @@
             switch(type) {
                 case 'basic-info':
                     component.innerHTML = `
-                        <button class="remove-btn" onclick="this.parentElement.remove()">×</button>
-                        <h3>Basic Information</h3>
-                        <div class="form-group">
-                            <label>Agent Name</label>
-                            <input type="text" id="agentName" placeholder="e.g., math-agent" />
+                        <div class="component-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                            <h3><span class="collapse-icon">▾</span> Basic Information</h3>
+                            <button class="remove-btn" onclick="event.stopPropagation(); this.closest('.dropped-component').remove(); updatePreview();">×</button>
                         </div>
-                        <div class="form-group">
-                            <label>Description</label>
-                            <textarea id="agentDescription" placeholder="What does this agent do?"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>Version</label>
-                            <input type="text" id="agentVersion" value="1.0" />
+                        <div class="component-body">
+                            <div class="form-group">
+                                <label>Agent Name *</label>
+                                <input type="text" id="agentName" placeholder="e.g., math-agent" />
+                            </div>
+                            <div class="form-group">
+                                <label>Description *</label>
+                                <textarea id="agentDescription" placeholder="What does this agent do?"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Version</label>
+                                <input type="text" id="agentVersion" value="1.0" />
+                            </div>
                         </div>
                     `;
                     break;
                     
                 case 'capabilities':
                     component.innerHTML = `
-                        <button class="remove-btn" onclick="this.parentElement.remove()">×</button>
-                        <h3>Capabilities</h3>
-                        <div id="capabilitiesList"></div>
-                        <div class="add-capability">
-                            <input type="text" id="newCapability" placeholder="e.g., addition, multiply" />
-                            <button onclick="addCapability()">Add</button>
+                        <div class="component-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                            <h3><span class="collapse-icon">▾</span> Capabilities</h3>
+                            <button class="remove-btn" onclick="event.stopPropagation(); this.closest('.dropped-component').remove(); updatePreview();">×</button>
+                        </div>
+                        <div class="component-body">
+                            <div id="capabilitiesList"></div>
+                            <div class="add-capability">
+                                <input type="text" id="newCapability" placeholder="e.g., addition, multiply" onkeypress="if(event.key==='Enter') addCapability()" />
+                                <button onclick="addCapability()">Add</button>
+                            </div>
                         </div>
                     `;
                     break;
                     
                 case 'tool':
-                    const toolId = Date.now();
                     component.innerHTML = `
-                        <button class="remove-btn" onclick="this.parentElement.remove()">×</button>
-                        <h3>Tool Definition</h3>
-                        <div class="form-group">
-                            <label>Tool Name</label>
-                            <input type="text" class="tool-name" placeholder="e.g., add" />
+                        <div class="component-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                            <h3><span class="collapse-icon">▾</span> Tool Definition</h3>
+                            <button class="remove-btn" onclick="event.stopPropagation(); this.closest('.dropped-component').remove(); updatePreview();">×</button>
                         </div>
-                        <div class="form-group">
-                            <label>Tool Description</label>
-                            <textarea class="tool-description" placeholder="What does this tool do?"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>Return Type</label>
-                            <input type="text" class="tool-return" placeholder="e.g., Map<String, Object>" value="Map<String, Object>" />
+                        <div class="component-body">
+                            <div class="form-group">
+                                <label>Tool Name</label>
+                                <input type="text" class="tool-name" placeholder="e.g., add" />
+                            </div>
+                            <div class="form-group">
+                                <label>Tool Description</label>
+                                <textarea class="tool-description" placeholder="What does this tool do?"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Return Type</label>
+                                <input type="text" class="tool-return" placeholder="e.g., Map&lt;String, Object&gt;" value="Map&lt;String, Object&gt;" />
+                            </div>
+                            <div class="form-group">
+                                <label>Parameters</label>
+                                <div class="params"></div>
+                                <button class="add-param-btn" onclick="addToolParameter(this.closest('.dropped-component'))">+ Add Parameter</button>
+                            </div>
                         </div>
                     `;
                     break;
                     
                 case 'config':
                     component.innerHTML = `
-                        <button class="remove-btn" onclick="this.parentElement.remove()">×</button>
-                        <h3>Configuration</h3>
-                        <div class="form-group">
-                            <label>JAR Path</label>
-                            <input type="text" id="jarPath" placeholder="/path/to/agent.jar" />
+                        <div class="component-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                            <h3><span class="collapse-icon">▾</span> Configuration</h3>
+                            <button class="remove-btn" onclick="event.stopPropagation(); this.closest('.dropped-component').remove(); updatePreview();">×</button>
                         </div>
-                        <div class="form-group">
-                            <label>Main Class</label>
-                            <input type="text" id="mainClass" placeholder="com.example.agent.MyAgent" />
+                        <div class="component-body">
+                            <div class="form-group">
+                                <label>JAR Path *</label>
+                                <input type="text" id="jarPath" placeholder="/path/to/agent.jar" />
+                            </div>
+                            <div class="form-group">
+                                <label>Main Class *</label>
+                                <input type="text" id="mainClass" placeholder="com.example.agent.MyAgent" />
+                            </div>
                         </div>
                     `;
                     break;
             }
             
             dropzone.appendChild(component);
+            attachAutoUpdate(component);
+            updatePreview();
+        }
+        
+        function attachAutoUpdate(root) {
+            root.querySelectorAll('input, textarea, select').forEach(el => {
+                el.addEventListener('input', () => updatePreview());
+            });
         }
         
         function addCapability() {
@@ -492,47 +676,80 @@
                 const list = document.getElementById('capabilitiesList');
                 const tag = document.createElement('span');
                 tag.className = 'capability-tag';
-                tag.innerHTML = `${capability} <button onclick="this.parentElement.remove()">×</button>`;
+                tag.innerHTML = `${capability} <button onclick="this.parentElement.remove(); updatePreview();">×</button>`;
                 list.appendChild(tag);
                 input.value = '';
+                updatePreview();
             }
         }
         
-        document.getElementById('registerBtn').addEventListener('click', async () => {
-            // Collect data from form
-            const name = document.getElementById('agentName')?.value;
-            const description = document.getElementById('agentDescription')?.value;
-            const version = document.getElementById('agentVersion')?.value || '1.0';
-            const jarPath = document.getElementById('jarPath')?.value;
-            const mainClass = document.getElementById('mainClass')?.value;
+        function addToolParameter(componentEl) {
+            const paramsContainer = componentEl.querySelector('.params');
+            const row = document.createElement('div');
+            row.className = 'parameter-row';
+            row.innerHTML = `
+                <button class="remove-param-btn" onclick="this.parentElement.remove(); updatePreview();">Remove</button>
+                <div class="form-group">
+                    <label>Param Name</label>
+                    <input type="text" class="param-name" placeholder="e.g., a" />
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select class="param-type">
+                        <option value="int">int</option>
+                        <option value="double">double</option>
+                        <option value="string">string</option>
+                        <option value="boolean">boolean</option>
+                        <option value="object">object</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" class="param-description" placeholder="Describe the parameter" />
+                </div>
+                <div class="form-group">
+                    <label><input type="checkbox" class="param-required" /> Required</label>
+                </div>
+            `;
+            paramsContainer.appendChild(row);
+            attachAutoUpdate(row);
+            updatePreview();
+        }
+        
+        function collectMetadata() {
+            const name = document.getElementById('agentName')?.value?.trim() || '';
+            const description = document.getElementById('agentDescription')?.value?.trim() || '';
+            const version = document.getElementById('agentVersion')?.value?.trim() || '1.0';
+            const jarPath = document.getElementById('jarPath')?.value?.trim() || '';
+            const mainClass = document.getElementById('mainClass')?.value?.trim() || '';
             
-            // Collect capabilities
             const capabilities = [];
             document.querySelectorAll('.capability-tag').forEach(tag => {
                 capabilities.push(tag.textContent.replace('×', '').trim());
             });
             
-            // Collect tools
             const toolDefinitions = [];
             document.querySelectorAll('.dropped-component').forEach(comp => {
                 if (comp.querySelector('.tool-name')) {
+                    const params = [];
+                    comp.querySelectorAll('.parameter-row').forEach(row => {
+                        params.push({
+                            name: row.querySelector('.param-name')?.value || '',
+                            type: row.querySelector('.param-type')?.value || 'string',
+                            description: row.querySelector('.param-description')?.value || '',
+                            required: !!row.querySelector('.param-required')?.checked
+                        });
+                    });
                     toolDefinitions.push({
-                        name: comp.querySelector('.tool-name').value,
-                        description: comp.querySelector('.tool-description').value,
-                        returnType: comp.querySelector('.tool-return').value,
-                        parameters: []
+                        name: comp.querySelector('.tool-name')?.value || '',
+                        description: comp.querySelector('.tool-description')?.value || '',
+                        returnType: comp.querySelector('.tool-return')?.value || 'Map<String, Object>',
+                        parameters: params
                     });
                 }
             });
             
-            // Validate
-            if (!name || !description || !jarPath || !mainClass) {
-                showNotification('Please fill in all required fields (Name, Description, JAR Path, Main Class)', 'error');
-                return;
-            }
-            
-            // Build agent metadata
-            const metadata = {
+            return {
                 name,
                 description,
                 version,
@@ -542,6 +759,117 @@
                 toolDefinitions,
                 status: 'ACTIVE'
             };
+        }
+        
+        function updatePreview() {
+            const metadata = collectMetadata();
+            const preview = document.getElementById('jsonPreview');
+            if (preview) preview.textContent = JSON.stringify(metadata, null, 2);
+            return metadata;
+        }
+        
+        function validateForm(metadata) {
+            const requiredOk = !!(metadata.name && metadata.description && metadata.jarPath && metadata.mainClass);
+            const msgEl = document.getElementById('validationMsg');
+            if (msgEl) {
+                msgEl.style.display = requiredOk ? 'none' : 'block';
+                msgEl.textContent = requiredOk ? '' : '⚠️ Missing: Name, Description, JAR Path, or Main Class';
+            }
+            
+            const reqFields = [
+                { id: 'agentName', value: metadata.name },
+                { id: 'agentDescription', value: metadata.description },
+                { id: 'jarPath', value: metadata.jarPath },
+                { id: 'mainClass', value: metadata.mainClass }
+            ];
+            reqFields.forEach(field => {
+                const el = document.getElementById(field.id);
+                if (el) el.style.borderColor = field.value ? '#ddd' : '#dc3545';
+            });
+            return requiredOk;
+        }
+        
+        function setupTabs() {
+            document.querySelectorAll('.tab').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tab = btn.getAttribute('data-tab');
+                    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.getElementById(`tab-${tab}`).classList.add('active');
+                });
+            });
+        }
+        
+        function loadMathTemplate() {
+            document.getElementById('clearBtn').click();
+            
+            addComponent('basic-info');
+            setTimeout(() => {
+                document.getElementById('agentName').value = 'math-agent';
+                document.getElementById('agentDescription').value = 'Performs simple arithmetic operations';
+                document.getElementById('agentVersion').value = '1.0';
+            }, 50);
+            
+            addComponent('config');
+            setTimeout(() => {
+                document.getElementById('jarPath').value = '/path/to/math-agent.jar';
+                document.getElementById('mainClass').value = 'com.example.agent.MathAgent';
+            }, 100);
+            
+            addComponent('capabilities');
+            setTimeout(() => {
+                const capInput = document.getElementById('newCapability');
+                capInput.value = 'addition';
+                addCapability();
+                capInput.value = 'multiplication';
+                addCapability();
+            }, 150);
+            
+            addComponent('tool');
+            setTimeout(() => {
+                const tools = document.querySelectorAll('.dropped-component');
+                const lastTool = Array.from(tools).reverse().find(c => c.querySelector('.tool-name'));
+                if (lastTool) {
+                    lastTool.querySelector('.tool-name').value = 'add';
+                    lastTool.querySelector('.tool-description').value = 'Adds two numbers';
+                    lastTool.querySelector('.tool-return').value = 'Map<String, Object>';
+                    
+                    addToolParameter(lastTool);
+                    setTimeout(() => {
+                        const rows = lastTool.querySelectorAll('.parameter-row');
+                        if (rows[0]) {
+                            rows[0].querySelector('.param-name').value = 'a';
+                            rows[0].querySelector('.param-type').value = 'int';
+                            rows[0].querySelector('.param-description').value = 'First operand';
+                            rows[0].querySelector('.param-required').checked = true;
+                        }
+                    }, 50);
+                    
+                    setTimeout(() => {
+                        addToolParameter(lastTool);
+                        setTimeout(() => {
+                            const rows = lastTool.querySelectorAll('.parameter-row');
+                            if (rows[1]) {
+                                rows[1].querySelector('.param-name').value = 'b';
+                                rows[1].querySelector('.param-type').value = 'int';
+                                rows[1].querySelector('.param-description').value = 'Second operand';
+                                rows[1].querySelector('.param-required').checked = true;
+                            }
+                            updatePreview();
+                        }, 50);
+                    }, 100);
+                }
+            }, 200);
+        }
+        
+        document.getElementById('registerBtn').addEventListener('click', async () => {
+            const metadata = collectMetadata();
+            const valid = validateForm(metadata);
+            if (!valid) {
+                showNotification('Please fill in all required fields (Name, Description, JAR Path, Main Class)', 'error');
+                return;
+            }
             
             try {
                 const response = await fetch(API_BASE, {
@@ -551,20 +879,26 @@
                 });
                 
                 if (response.ok) {
-                    showNotification('Agent registered successfully!', 'success');
+                    showNotification('✅ Agent registered successfully!', 'success');
                     loadAgents();
                     document.getElementById('clearBtn').click();
                 } else {
                     const error = await response.json();
-                    showNotification('Error: ' + (error.error || 'Registration failed'), 'error');
+                    showNotification('❌ Error: ' + (error.error || 'Registration failed'), 'error');
                 }
             } catch (error) {
-                showNotification('Failed to connect to API: ' + error.message, 'error');
+                showNotification('❌ Failed to connect to API: ' + error.message, 'error');
             }
         });
         
         document.getElementById('clearBtn').addEventListener('click', () => {
             dropzone.innerHTML = '<p style="text-align: center; color: #999; padding: 50px 0;">Drag components here to start building your agent</p>';
+            updatePreview();
+        });
+        
+        document.getElementById('tpl-math').addEventListener('click', loadMathTemplate);
+        document.getElementById('tpl-empty').addEventListener('click', () => {
+            document.getElementById('clearBtn').click();
         });
         
         async function loadAgents() {
@@ -574,6 +908,11 @@
                 
                 const list = document.getElementById('agentsList');
                 list.innerHTML = '';
+                
+                if (agents.length === 0) {
+                    list.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No agents registered yet</p>';
+                    return;
+                }
                 
                 agents.forEach(agent => {
                     const card = document.createElement('div');
@@ -587,6 +926,7 @@
                 });
             } catch (error) {
                 console.error('Failed to load agents:', error);
+                document.getElementById('agentsList').innerHTML = '<p style="color: #dc3545; text-align: center; padding: 20px;">Failed to load agents</p>';
             }
         }
         
@@ -602,9 +942,11 @@
             }, 3000);
         }
         
-        // Load agents on page load
+        // Initialize
         loadAgents();
-        setInterval(loadAgents, 5000); // Refresh every 5 seconds
+        setupTabs();
+        updatePreview();
+        setInterval(loadAgents, 5000);
     </script>
 </body>
 </html>

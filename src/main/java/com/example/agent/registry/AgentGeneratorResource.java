@@ -31,11 +31,17 @@ public class AgentGeneratorResource {
         public List<String> subagentIds;
         public String googleApiKey;
         public Integer serverPort;
+        public List<String> beforeAgentCallbacks;
+        public List<String> afterAgentCallbacks;
+        public List<String> transportProtocols;
         
         public GenerateRequest() {
             this.toolIds = new ArrayList<>();
             this.subagentIds = new ArrayList<>();
             this.packageName = "com.example.agent";
+            this.beforeAgentCallbacks = new ArrayList<>();
+            this.afterAgentCallbacks = new ArrayList<>();
+            this.transportProtocols = new ArrayList<>();
         }
     }
     
@@ -72,12 +78,17 @@ public class AgentGeneratorResource {
             
             // Fetch subagent metadata
             List<A2AAgentMetadata> subagents = new ArrayList<>();
+            System.out.println("[AgentGenerator] Received subagentIds: " + request.subagentIds);
             if (request.subagentIds != null && !request.subagentIds.isEmpty()) {
+                System.out.println("[AgentGenerator] Processing " + request.subagentIds.size() + " subagent IDs");
                 for (String subagentId : request.subagentIds) {
+                    System.out.println("[AgentGenerator] Fetching subagent: " + subagentId);
                     A2AAgentMetadata subagent = a2aClientService.getAgent(subagentId);
                     if (subagent != null) {
+                        System.out.println("[AgentGenerator] Found subagent: " + subagent.getName() + " at " + subagent.getUrl());
                         subagents.add(subagent);
                     } else {
+                        System.out.println("[AgentGenerator] Subagent not found: " + subagentId);
                         return Response.status(Response.Status.BAD_REQUEST)
                             .type(MediaType.APPLICATION_JSON)
                             .entity(Map.of("error", "Sub-agent not found: " + subagentId))
@@ -85,6 +96,7 @@ public class AgentGeneratorResource {
                     }
                 }
             }
+            System.out.println("[AgentGenerator] Total subagents to include: " + subagents.size());
             
             // Create generation request
             AgentCodeGenerator.GenerationRequest genRequest = new AgentCodeGenerator.GenerationRequest();
@@ -96,6 +108,14 @@ public class AgentGeneratorResource {
             genRequest.subagents = subagents;
             genRequest.googleApiKey = request.googleApiKey;
             genRequest.serverPort = request.serverPort;
+            genRequest.beforeAgentCallbacks = request.beforeAgentCallbacks != null ? request.beforeAgentCallbacks : new ArrayList<>();
+            genRequest.afterAgentCallbacks = request.afterAgentCallbacks != null ? request.afterAgentCallbacks : new ArrayList<>();
+            genRequest.transportProtocols = request.transportProtocols != null ? request.transportProtocols : new ArrayList<>();
+            
+            System.out.println("[AgentGenerator] Creating agent with:");
+            System.out.println("  - MCP Tools: " + tools.size());
+            System.out.println("  - Sub-agents: " + subagents.size());
+            System.out.println("  - Transport Protocols: " + genRequest.transportProtocols);
             
             // Generate ZIP
             byte[] zipBytes = generator.generateAgentZip(genRequest);
