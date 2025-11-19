@@ -34,6 +34,9 @@ public class AgentCodeGenerator {
         // Transport protocols
         public List<String> transportProtocols;    // A2A transport protocols (JSONRPC, GRPC, REST)
         
+        // Custom callbacks
+        public List<AgentGeneratorResource.CustomCallbackDefinition> customCallbacks;
+        
         public GenerationRequest() {
             this.attachedTools = new ArrayList<>();
             this.subagentIds = new ArrayList<>();
@@ -41,6 +44,7 @@ public class AgentCodeGenerator {
             this.beforeAgentCallbacks = new ArrayList<>();
             this.afterAgentCallbacks = new ArrayList<>();
             this.transportProtocols = new ArrayList<>();
+            this.customCallbacks = new ArrayList<>();
             // Defaults
             this.model = "gemini-2.5-flash";
             this.temperature = 1.0;
@@ -85,6 +89,16 @@ public class AgentCodeGenerator {
             
             // Generate .gitignore
             addZipEntry(zos, ".gitignore", generateGitignore());
+            
+            // Generate custom callback classes
+            if (request.customCallbacks != null && !request.customCallbacks.isEmpty()) {
+                for (AgentGeneratorResource.CustomCallbackDefinition customCallback : request.customCallbacks) {
+                    String callbackCode = generateCustomCallbackClass(request, customCallback);
+                    String callbackPath = "src/main/java/" + packageToPath(request.packageName) + 
+                                          "/callbacks/" + customCallback.name + ".java";
+                    addZipEntry(zos, callbackPath, callbackCode);
+                }
+            }
             
             // Generate startup scripts
             String startScript = generateStartScript(request);
@@ -166,6 +180,13 @@ public class AgentCodeGenerator {
         if (request.afterAgentCallbacks != null && !request.afterAgentCallbacks.isEmpty()) {
             for (String callbackFqdn : request.afterAgentCallbacks) {
                 code.append("import ").append(callbackFqdn).append(";\n");
+            }
+        }
+        
+        // Add custom callback imports
+        if (request.customCallbacks != null && !request.customCallbacks.isEmpty()) {
+            for (AgentGeneratorResource.CustomCallbackDefinition customCallback : request.customCallbacks) {
+                code.append("import ").append(request.packageName).append(".callbacks.").append(customCallback.name).append(";\n");
             }
         }
         code.append("\n");
@@ -277,33 +298,132 @@ public class AgentCodeGenerator {
             code.append("                .tools(allTools)  // Register all MCP toolsets and sub-agent tools\n");
         }
         
-        // Register callbacks
-        boolean hasCallbacks = (request.beforeAgentCallbacks != null && !request.beforeAgentCallbacks.isEmpty()) ||
-                              (request.afterAgentCallbacks != null && !request.afterAgentCallbacks.isEmpty());
+        // Register callbacks (including custom callbacks)
+        List<String> allBeforeAgentCallbacks = new ArrayList<>();
+        List<String> allAfterAgentCallbacks = new ArrayList<>();
+        List<String> allBeforeModelCallbacks = new ArrayList<>();
+        List<String> allAfterModelCallbacks = new ArrayList<>();
+        List<String> allBeforeToolCallbacks = new ArrayList<>();
+        List<String> allAfterToolCallbacks = new ArrayList<>();
         
-        if (request.beforeAgentCallbacks != null && !request.beforeAgentCallbacks.isEmpty()) {
+        // Add registered callbacks
+        if (request.beforeAgentCallbacks != null) {
+            allBeforeAgentCallbacks.addAll(request.beforeAgentCallbacks);
+        }
+        if (request.afterAgentCallbacks != null) {
+            allAfterAgentCallbacks.addAll(request.afterAgentCallbacks);
+        }
+        
+        // Add custom callbacks based on their category
+        if (request.customCallbacks != null) {
+            for (AgentGeneratorResource.CustomCallbackDefinition cb : request.customCallbacks) {
+                String fqdn = request.packageName + ".callbacks." + cb.name;
+                String category = cb.category != null ? cb.category : "BeforeAgentCallback";
+                
+                // Debug log to track callback assignments
+                System.out.println("[CustomCallback] Processing: " + cb.name + " with category: " + category);
+                
+                switch (category) {
+                    case "BeforeAgentCallback":
+                        System.out.println("  -> Added to BeforeAgentCallbacks");
+                        allBeforeAgentCallbacks.add(fqdn);
+                        break;
+                    case "AfterAgentCallback":
+                        System.out.println("  -> Added to AfterAgentCallbacks");
+                        allAfterAgentCallbacks.add(fqdn);
+                        break;
+                    case "BeforeModelCallback":
+                        System.out.println("  -> Added to BeforeModelCallbacks");
+                        allBeforeModelCallbacks.add(fqdn);
+                        break;
+                    case "AfterModelCallback":
+                        System.out.println("  -> Added to AfterModelCallbacks");
+                        allAfterModelCallbacks.add(fqdn);
+                        break;
+                    case "BeforeToolCallback":
+                        System.out.println("  -> Added to BeforeToolCallbacks");
+                        allBeforeToolCallbacks.add(fqdn);
+                        break;
+                    case "AfterToolCallback":
+                        System.out.println("  -> Added to AfterToolCallbacks");
+                        allAfterToolCallbacks.add(fqdn);
+                        break;
+                    default:
+                        System.out.println("  -> Unknown category, defaulting to BeforeAgentCallbacks");
+                        allBeforeAgentCallbacks.add(fqdn);
+                        break;
+                }
+            }
+        }
+        
+        // Register all callback types
+        if (!allBeforeAgentCallbacks.isEmpty()) {
             code.append("                .beforeAgentCallback(List.of(\n");
-            for (int i = 0; i < request.beforeAgentCallbacks.size(); i++) {
-                String fqdn = request.beforeAgentCallbacks.get(i);
+            for (int i = 0; i < allBeforeAgentCallbacks.size(); i++) {
+                String fqdn = allBeforeAgentCallbacks.get(i);
                 String callbackClassName = fqdn.substring(fqdn.lastIndexOf('.') + 1);
                 code.append("                    new ").append(callbackClassName).append("()");
-                if (i < request.beforeAgentCallbacks.size() - 1) {
-                    code.append(",");
-                }
+                if (i < allBeforeAgentCallbacks.size() - 1) code.append(",");
                 code.append("\n");
             }
             code.append("                ))\n");
         }
         
-        if (request.afterAgentCallbacks != null && !request.afterAgentCallbacks.isEmpty()) {
+        if (!allAfterAgentCallbacks.isEmpty()) {
             code.append("                .afterAgentCallback(List.of(\n");
-            for (int i = 0; i < request.afterAgentCallbacks.size(); i++) {
-                String fqdn = request.afterAgentCallbacks.get(i);
+            for (int i = 0; i < allAfterAgentCallbacks.size(); i++) {
+                String fqdn = allAfterAgentCallbacks.get(i);
                 String callbackClassName = fqdn.substring(fqdn.lastIndexOf('.') + 1);
                 code.append("                    new ").append(callbackClassName).append("()");
-                if (i < request.afterAgentCallbacks.size() - 1) {
-                    code.append(",");
-                }
+                if (i < allAfterAgentCallbacks.size() - 1) code.append(",");
+                code.append("\n");
+            }
+            code.append("                ))\n");
+        }
+        
+        if (!allBeforeModelCallbacks.isEmpty()) {
+            code.append("                .beforeModelCallback(List.of(\n");
+            for (int i = 0; i < allBeforeModelCallbacks.size(); i++) {
+                String fqdn = allBeforeModelCallbacks.get(i);
+                String callbackClassName = fqdn.substring(fqdn.lastIndexOf('.') + 1);
+                code.append("                    new ").append(callbackClassName).append("()");
+                if (i < allBeforeModelCallbacks.size() - 1) code.append(",");
+                code.append("\n");
+            }
+            code.append("                ))\n");
+        }
+        
+        if (!allAfterModelCallbacks.isEmpty()) {
+            code.append("                .afterModelCallback(List.of(\n");
+            for (int i = 0; i < allAfterModelCallbacks.size(); i++) {
+                String fqdn = allAfterModelCallbacks.get(i);
+                String callbackClassName = fqdn.substring(fqdn.lastIndexOf('.') + 1);
+                code.append("                    new ").append(callbackClassName).append("()");
+                if (i < allAfterModelCallbacks.size() - 1) code.append(",");
+                code.append("\n");
+            }
+            code.append("                ))\n");
+        }
+        
+        if (!allBeforeToolCallbacks.isEmpty()) {
+            code.append("                .beforeToolCallback(List.of(\n");
+            for (int i = 0; i < allBeforeToolCallbacks.size(); i++) {
+                String fqdn = allBeforeToolCallbacks.get(i);
+                String callbackClassName = fqdn.substring(fqdn.lastIndexOf('.') + 1);
+                code.append("                    new ").append(callbackClassName).append("()");
+                if (i < allBeforeToolCallbacks.size() - 1) code.append(",");
+                code.append("\n");
+            }
+            code.append("                ))\n");
+        }
+        
+        if (!allAfterToolCallbacks.isEmpty()) {
+            code.append("                .afterToolCallback(List.of(\n");
+            for (int i = 0; i < allAfterToolCallbacks.size(); i++) {
+                String fqdn = allAfterToolCallbacks.get(i);
+                String callbackClassName = fqdn.substring(fqdn.lastIndexOf('.') + 1);
+                code.append("                    new ").append(callbackClassName).append("()");
+                if (i < allAfterToolCallbacks.size() - 1) code.append(",");
                 code.append("\n");
             }
             code.append("                ))\n");
@@ -914,6 +1034,188 @@ public class AgentCodeGenerator {
     
     private String sanitizeVarName(String name) {
         return name.toLowerCase().replaceAll("[^a-zA-Z0-9]", "");
+    }
+    
+    private String generateCustomCallbackClass(GenerationRequest request, AgentGeneratorResource.CustomCallbackDefinition callback) {
+        StringBuilder code = new StringBuilder();
+        String baseClass = callback.category != null ? callback.category : "BeforeAgentCallback";
+        
+        // Use reflection to get method signature and imports
+        try {
+            // Callbacks is a nested class container, use $ for nested class reference
+            Class<?> callbackClass = Class.forName("com.google.adk.agents.Callbacks$" + baseClass);
+            java.lang.reflect.Method callMethod = null;
+            
+            // Find the call method (not apply - these are @FunctionalInterface with call method)
+            for (java.lang.reflect.Method method : callbackClass.getDeclaredMethods()) {
+                if ("call".equals(method.getName())) {
+                    callMethod = method;
+                    break;
+                }
+            }
+            
+            if (callMethod == null) {
+                throw new RuntimeException("Could not find call method in " + baseClass);
+            }
+            
+            // Get parameter types and return type
+            Class<?>[] paramTypes = callMethod.getParameterTypes();
+            Class<?> returnType = callMethod.getReturnType();
+            
+            // Generate imports
+            code.append("package ").append(request.packageName).append(".callbacks;\n\n");
+            // Import the nested callback class
+            code.append("import com.google.adk.agents.Callbacks.").append(baseClass).append(";\n");
+            
+            // Add imports for parameter and return types
+            java.util.Set<String> imports = new java.util.HashSet<>();
+            for (Class<?> paramType : paramTypes) {
+                if (!paramType.isPrimitive() && !paramType.getName().startsWith("java.lang")) {
+                    imports.add(paramType.getName());
+                }
+            }
+            if (!returnType.isPrimitive() && !returnType.getName().startsWith("java.lang")) {
+                imports.add(returnType.getName());
+            }
+            
+            if ("stateless".equals(callback.state)) {
+                imports.add("java.util.function.BiFunction");
+            }
+            
+            for (String importName : imports) {
+                code.append("import ").append(importName).append(";\n");
+            }
+            code.append("\n");
+            
+            code.append("/**\n");
+            code.append(" * ").append(callback.description != null ? callback.description : "Custom callback").append("\n");
+            code.append(" * Type: ").append(baseClass).append(" - ");
+            code.append("stateless".equals(callback.state) ? "Stateless (Lambda)" : "Stateful (Custom implementation required)").append("\n");
+            code.append(" * Generated by Agent Builder\n");
+            code.append(" */\n");
+            code.append("public class ").append(callback.name).append(" implements ").append(baseClass).append(" {\n\n");
+        
+            // Generate method signature from reflection
+            StringBuilder methodSig = new StringBuilder();
+            methodSig.append("    @Override\n");
+            methodSig.append("    public ").append(returnType.getSimpleName()).append(" call(");
+            
+            // Add parameters with meaningful names based on types
+            for (int i = 0; i < paramTypes.length; i++) {
+                if (i > 0) methodSig.append(", ");
+                String paramName = getParameterName(paramTypes[i], i);
+                methodSig.append(paramTypes[i].getSimpleName()).append(" ").append(paramName);
+            }
+            methodSig.append(") {\n");
+            
+            if ("stateless".equals(callback.state) && callback.lambda != null && !callback.lambda.trim().isEmpty()) {
+                // Generate stateless callback with lambda
+                // Build functional interface type based on parameter count
+                String funcInterface = buildFunctionalInterface(paramTypes, returnType);
+                code.append("    private final ").append(funcInterface).append(" implementation = ");
+                code.append(callback.lambda);
+                code.append(";\n\n");
+                
+                code.append(methodSig);
+                code.append("        return implementation.apply(");
+                // Add parameter names
+                for (int i = 0; i < paramTypes.length; i++) {
+                    if (i > 0) code.append(", ");
+                    code.append(getParameterName(paramTypes[i], i));
+                }
+                code.append(");\n");
+                code.append("    }\n");
+            } else {
+                // Generate stateful callback with empty implementation
+                code.append("    /**\n");
+                code.append("     * TODO: Implement your custom callback logic here\n");
+                code.append("     * \n");
+                code.append("     * This is a ").append(baseClass).append(".\n");
+                code.append("     * Parameters: ");
+                for (int i = 0; i < paramTypes.length; i++) {
+                    if (i > 0) code.append(", ");
+                    code.append(paramTypes[i].getSimpleName());
+                }
+                code.append("\n");
+                code.append("     * Returns: ").append(returnType.getSimpleName()).append("\n");
+                code.append("     */\n");
+                code.append(methodSig);
+                code.append("        // Add your custom logic here\n");
+                code.append("        System.out.println(\"[Custom Callback] ").append(callback.name).append(" executed\");\n");
+                code.append("        \n");
+                code.append("        // TODO: Implement your callback logic\n");
+                code.append("        \n");
+                
+                // Generate appropriate return statement based on return type
+                String returnTypeName = returnType.getSimpleName();
+                if ("void".equals(returnTypeName)) {
+                    code.append("        // No return needed for void\n");
+                } else if ("Maybe".equals(returnTypeName)) {
+                    code.append("        // Return empty Maybe to continue with normal flow\n");
+                    code.append("        return Maybe.empty();\n");
+                } else if ("Optional".equals(returnTypeName)) {
+                    code.append("        // Return empty Optional to continue with normal flow\n");
+                    code.append("        return Optional.empty();\n");
+                } else {
+                    code.append("        // Return appropriate value\n");
+                    code.append("        return null; // TODO: Return proper value\n");
+                }
+                code.append("    }\n");
+            }
+            
+            code.append("}\n");
+            
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Callback class not found: " + baseClass, e);
+        }
+        
+        return code.toString();
+    }
+    
+    /**
+     * Get meaningful parameter name based on type
+     */
+    private String getParameterName(Class<?> type, int index) {
+        String typeName = type.getSimpleName();
+        switch (typeName) {
+            case "CallbackContext":
+                return "callbackContext";
+            case "InvocationContext":
+                return "invocationContext";
+            case "LlmRequest":
+            case "Builder":
+                return "llmRequestBuilder";
+            case "LlmResponse":
+                return "llmResponse";
+            case "BaseTool":
+                return "baseTool";
+            case "ToolContext":
+                return "toolContext";
+            case "Map":
+                return index == 2 ? "input" : "response";
+            case "Object":
+                return "response";
+            default:
+                return "param" + (index + 1);
+        }
+    }
+    
+    /**
+     * Build functional interface type string based on parameters
+     */
+    private String buildFunctionalInterface(Class<?>[] paramTypes, Class<?> returnType) {
+        if (paramTypes.length == 1) {
+            return "java.util.function.Function<" + paramTypes[0].getSimpleName() + ", " + returnType.getSimpleName() + ">";
+        } else if (paramTypes.length == 2) {
+            return "java.util.function.BiFunction<" + paramTypes[0].getSimpleName() + ", " + 
+                   paramTypes[1].getSimpleName() + ", " + returnType.getSimpleName() + ">";
+        } else {
+            // For 3+ parameters, we'll need to create a custom functional interface or use a generic approach
+            // For now, use a lambda-compatible approach
+            StringBuilder sb = new StringBuilder();
+            sb.append("/* Custom functional interface for ").append(paramTypes.length).append(" parameters */ Object");
+            return sb.toString();
+        }
     }
     
     private String generateAgentCardProducer(GenerationRequest request) {

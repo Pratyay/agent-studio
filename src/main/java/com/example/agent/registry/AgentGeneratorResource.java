@@ -22,6 +22,15 @@ public class AgentGeneratorResource {
         this.a2aClientService = a2aClientService;
     }
     
+    public static class CustomCallbackDefinition {
+        public String name;
+        public String description;
+        public String type; // "before" or "after" - for organization in UI
+        public String category; // "BeforeAgentCallback", "AfterAgentCallback", etc.
+        public String state; // "stateless" or "stateful"
+        public String lambda; // Lambda code if stateless
+    }
+    
     public static class GenerateRequest {
         public String agentName;
         public String description;
@@ -34,6 +43,7 @@ public class AgentGeneratorResource {
         public List<String> beforeAgentCallbacks;
         public List<String> afterAgentCallbacks;
         public List<String> transportProtocols;
+        public List<CustomCallbackDefinition> customCallbacks;
         
         public GenerateRequest() {
             this.toolIds = new ArrayList<>();
@@ -42,6 +52,7 @@ public class AgentGeneratorResource {
             this.beforeAgentCallbacks = new ArrayList<>();
             this.afterAgentCallbacks = new ArrayList<>();
             this.transportProtocols = new ArrayList<>();
+            this.customCallbacks = new ArrayList<>();
         }
     }
     
@@ -111,11 +122,16 @@ public class AgentGeneratorResource {
             genRequest.beforeAgentCallbacks = request.beforeAgentCallbacks != null ? request.beforeAgentCallbacks : new ArrayList<>();
             genRequest.afterAgentCallbacks = request.afterAgentCallbacks != null ? request.afterAgentCallbacks : new ArrayList<>();
             genRequest.transportProtocols = request.transportProtocols != null ? request.transportProtocols : new ArrayList<>();
+            genRequest.customCallbacks = request.customCallbacks != null ? request.customCallbacks : new ArrayList<>();
             
             System.out.println("[AgentGenerator] Creating agent with:");
             System.out.println("  - MCP Tools: " + tools.size());
             System.out.println("  - Sub-agents: " + subagents.size());
             System.out.println("  - Transport Protocols: " + genRequest.transportProtocols);
+            System.out.println("  - Custom Callbacks: " + request.customCallbacks.size());
+            for (CustomCallbackDefinition cb : request.customCallbacks) {
+                System.out.println("    [RECEIVED] " + cb.name + " - type: " + cb.type + ", category: " + cb.category + ", state: " + cb.state);
+            }
             
             // Generate ZIP
             byte[] zipBytes = generator.generateAgentZip(genRequest);

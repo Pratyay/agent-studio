@@ -1061,6 +1061,7 @@ If you don't know something, admit it rather than guessing." style="min-height: 
                             </div>
                         </div>
                         <div class="form-hint">💡 Click to select multiple callbacks</div>
+                        <button class="btn" style="margin-top: 8px; padding: 8px 12px; font-size: 12px; background: #238636; border-color: #2ea043; color: white;" onclick="openCustomCallbackModal('before')">+ Add Custom Callback</button>
                     </div>
 
                     <div class="form-group">
@@ -1077,7 +1078,14 @@ If you don't know something, admit it rather than guessing." style="min-height: 
                             </div>
                         </div>
                         <div class="form-hint">💡 Click to select multiple callbacks</div>
+                        <button class="btn" style="margin-top: 8px; padding: 8px 12px; font-size: 12px; background: #238636; border-color: #2ea043; color: white;" onclick="openCustomCallbackModal('after')">+ Add Custom Callback</button>
                     </div>
+                </div>
+
+                <!-- Custom Callbacks Display -->
+                <div id="customCallbacksDisplay" style="display: none; margin-top: 20px;">
+                    <label style="display: block; margin-bottom: 12px; color: #8b949e; font-size: 13px; font-weight: 600;">Custom Callbacks</label>
+                    <div id="customCallbacksList"></div>
                 </div>
 
                 <div class="form-group">
@@ -1179,6 +1187,63 @@ If you don't know something, admit it rather than guessing." style="min-height: 
         </div>
     </div>
 
+    <!-- Custom Callback Modal -->
+    <div class="modal" id="customCallbackModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">Add Custom Callback</div>
+
+            <div class="form-group">
+                <label>Callback Name <span class="required">*</span></label>
+                <input type="text" id="customCallbackName" placeholder="e.g., MyCustomCallback">
+                <div class="form-hint">Use PascalCase for the callback class name</div>
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="customCallbackDescription" placeholder="What does this callback do?" style="min-height: 60px;"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Callback Category <span class="required">*</span></label>
+                <select id="customCallbackCategory" style="width: 100%;">
+                    <option value="BeforeAgentCallback">Before Agent Callback</option>
+                    <option value="AfterAgentCallback">After Agent Callback</option>
+                    <option value="BeforeModelCallback">Before Model Callback</option>
+                    <option value="AfterModelCallback">After Model Callback</option>
+                    <option value="BeforeToolCallback">Before Tool Callback</option>
+                    <option value="AfterToolCallback">After Tool Callback</option>
+                </select>
+                <div class="form-hint">Select the type of callback to extend</div>
+            </div>
+
+            <div class="form-group">
+                <label>Implementation Type</label>
+                <div style="display: flex; gap: 12px; margin-top: 8px;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: #c9d1d9;">
+                        <input type="radio" name="customCallbackState" value="stateless" checked onchange="toggleLambdaCode()">
+                        <span>Stateless (Lambda)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: #c9d1d9;">
+                        <input type="radio" name="customCallbackState" value="stateful" onchange="toggleLambdaCode()">
+                        <span>Stateful (Custom Class)</span>
+                    </label>
+                </div>
+                <div class="form-hint">Stateless: Provide lambda code. Stateful: Empty class will be generated for you to implement</div>
+            </div>
+
+            <div class="form-group" id="lambdaCodeGroup">
+                <label>Lambda Code <span class="required">*</span></label>
+                <textarea id="customCallbackLambda" placeholder="(input, context) -> {&#10;    // Your callback logic here&#10;    System.out.println(\"Callback executed: \" + input);&#10;    return input;&#10;}" style="min-height: 150px; font-family: 'SF Mono', monospace; font-size: 13px;"></textarea>
+                <div class="form-hint">Write Java lambda expression: (input, context) -> { ... return input; }</div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeCustomCallbackModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="addCustomCallback()">Add Callback</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Agent Details Modal -->
     <div class="modal" id="agentDetailsModal">
         <div class="modal-content" style="max-width: 700px;">
@@ -1203,6 +1268,8 @@ If you don't know something, admit it rather than guessing." style="min-height: 
         let selectedBeforeCallbacks = [];
         let selectedAfterCallbacks = [];
         let selectedTransports = [];
+        let customCallbacks = [];
+        let currentCustomCallbackType = 'before';
 
         // Load data on page load
         window.onload = function() {
@@ -1743,6 +1810,91 @@ If you don't know something, admit it rather than guessing." style="min-height: 
             document.getElementById('a2aRegisterModal').classList.remove('active');
         }
 
+        // Custom Callback Functions
+        function openCustomCallbackModal(type) {
+            currentCustomCallbackType = type;
+            document.getElementById('customCallbackModal').classList.add('active');
+            document.getElementById('customCallbackName').value = '';
+            document.getElementById('customCallbackDescription').value = '';
+            document.getElementById('customCallbackLambda').value = '';
+            // Set default category based on context
+            document.getElementById('customCallbackCategory').value = type === 'before' ? 'BeforeAgentCallback' : 'AfterAgentCallback';
+            document.querySelector('input[name="customCallbackState"][value="stateless"]').checked = true;
+            toggleLambdaCode();
+        }
+
+        function closeCustomCallbackModal() {
+            document.getElementById('customCallbackModal').classList.remove('active');
+        }
+
+        function toggleLambdaCode() {
+            const isStateless = document.querySelector('input[name="customCallbackState"]:checked').value === 'stateless';
+            const lambdaGroup = document.getElementById('lambdaCodeGroup');
+            lambdaGroup.style.display = isStateless ? 'block' : 'none';
+        }
+
+        function addCustomCallback() {
+            const name = document.getElementById('customCallbackName').value.trim();
+            const description = document.getElementById('customCallbackDescription').value.trim();
+            const category = document.getElementById('customCallbackCategory').value;
+            const state = document.querySelector('input[name="customCallbackState"]:checked').value;
+            const lambda = document.getElementById('customCallbackLambda').value.trim();
+
+            if (!name) {
+                showNotification('Callback name is required', 'error');
+                return;
+            }
+
+            if (state === 'stateless' && !lambda) {
+                showNotification('Lambda code is required for stateless callbacks', 'error');
+                return;
+            }
+
+            const callback = {
+                id: 'custom_' + Date.now(),
+                name: name,
+                description: description || '',
+                type: currentCustomCallbackType,
+                category: category,
+                state: state,
+                lambda: lambda || null
+            };
+
+            customCallbacks.push(callback);
+            renderCustomCallbacks();
+            closeCustomCallbackModal();
+            showNotification(`Custom callback "${name}" added successfully!`, 'success');
+        }
+
+        function renderCustomCallbacks() {
+            const container = document.getElementById('customCallbacksList');
+            const display = document.getElementById('customCallbacksDisplay');
+
+            if (customCallbacks.length === 0) {
+                display.style.display = 'none';
+                return;
+            }
+
+            display.style.display = 'block';
+
+            container.innerHTML = customCallbacks.map(cb => `
+                <div class="attached-item" style="border-left-color: ${cb.type === 'before' ? '#58a6ff' : '#3fb950'};">
+                    <div class="attached-item-info">
+                        <h4>${cb.name} <span style="font-size: 11px; color: #8b949e; font-weight: 400;">[${cb.category}]</span></h4>
+                        <p>${cb.state === 'stateless' ? '⚡ Stateless (Lambda)' : '🔧 Stateful (Custom Class)'}</p>
+                        ${cb.description ? '<p style="font-size: 11px; margin-top: 4px;">' + cb.description + '</p>' : ''}
+                    </div>
+                    <button class="remove-item" onclick="removeCustomCallback('${cb.id}')">×</button>
+                </div>
+            `).join('');
+        }
+
+        function removeCustomCallback(id) {
+            customCallbacks = customCallbacks.filter(cb => cb.id !== id);
+            renderCustomCallbacks();
+            showNotification('Custom callback removed', 'success');
+        }
+
         async function registerTool() {
             const name = document.getElementById('newToolName').value.trim();
             const description = document.getElementById('newToolDescription').value.trim();
@@ -1820,7 +1972,15 @@ If you don't know something, admit it rather than guessing." style="min-height: 
                 serverPort: parseInt(document.getElementById('serverPort').value) || 8000,
                 beforeAgentCallbacks: selectedBeforeCallbacks.map(cb => cb.fqdn),
                 afterAgentCallbacks: selectedAfterCallbacks.map(cb => cb.fqdn),
-                transportProtocols: selectedTransports.map(t => t.value)
+                transportProtocols: selectedTransports.map(t => t.value),
+                customCallbacks: customCallbacks.map(cb => ({
+                    name: cb.name,
+                    description: cb.description,
+                    type: cb.type,
+                    category: cb.category,
+                    state: cb.state,
+                    lambda: cb.lambda
+                }))
             };
 
             try {
@@ -1865,11 +2025,13 @@ If you don't know something, admit it rather than guessing." style="min-height: 
             selectedBeforeCallbacks = [];
             selectedAfterCallbacks = [];
             selectedTransports = [];
+            customCallbacks = [];
             renderAttachedTools();
             renderAttachedSubagents();
             renderSelectedCallbacks('before');
             renderSelectedCallbacks('after');
             renderSelectedTransports();
+            renderCustomCallbacks();
             showNotification('Form cleared', 'success');
         }
 
