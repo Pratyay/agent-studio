@@ -29,6 +29,8 @@ public class AgentGeneratorResource {
         public String category; // "BeforeAgentCallback", "AfterAgentCallback", etc.
         public String state; // "stateless" or "stateful"
         public String lambda; // Lambda code if stateless
+        public String scope; // "ApplicationScoped", "RequestScoped", or "SessionScoped"
+        public Boolean needsProducer; // true if a CDI Producer class is needed
     }
     
     public static class GenerateRequest {

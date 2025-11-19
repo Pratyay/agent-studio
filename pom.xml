@@ -144,6 +144,13 @@
             <artifactId>a2a-java-sdk-client-transport-rest</artifactId>
             <version>${a2a.sdk.version}</version>
         </dependency>
+        
+        <!-- A2A Client Transport - GRPC -->
+        <dependency>
+            <groupId>io.github.a2asdk</groupId>
+            <artifactId>a2a-java-sdk-client-transport-grpc</artifactId>
+            <version>${a2a.sdk.version}</version>
+        </dependency>
     </dependencies>
     
     <build>

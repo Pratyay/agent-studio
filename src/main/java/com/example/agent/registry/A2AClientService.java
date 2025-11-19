@@ -8,6 +8,11 @@ import io.a2a.client.config.ClientConfig;
 import io.a2a.client.http.A2ACardResolver;
 import io.a2a.client.transport.jsonrpc.JSONRPCTransport;
 import io.a2a.client.transport.jsonrpc.JSONRPCTransportConfig;
+import io.a2a.client.transport.rest.RestTransport;
+import io.a2a.client.transport.rest.RestTransportConfig;
+import io.a2a.client.transport.grpc.GrpcTransport;
+import io.a2a.client.transport.grpc.GrpcTransportConfig;
+import io.grpc.ManagedChannelBuilder;
 import io.a2a.spec.AgentCard;
 import io.a2a.spec.Message;
 import io.a2a.spec.Part;
@@ -172,13 +177,15 @@ public class A2AClientService {
             logger.error("Streaming error occurred: {}", error.getMessage(), error);
         };
         
-        // Build client with JSONRPC transport
+        // Build client with all available transport protocols (JSONRPC, REST, and GRPC)
         Client client = Client
                 .builder(agentCard)
                 .clientConfig(clientConfig)
                 .addConsumers(consumers)
                 .streamingErrorHandler(streamingErrorHandler)
                 .withTransport(JSONRPCTransport.class, new JSONRPCTransportConfig())
+                .withTransport(RestTransport.class, new RestTransportConfig())
+                .withTransport(GrpcTransport.class, new GrpcTransportConfig(uri -> ManagedChannelBuilder.forTarget(uri).usePlaintext().build()))
                 .build();
         
         logger.info("Created A2A client for agent: {}", agentId);

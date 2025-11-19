@@ -4,7 +4,9 @@ import com.google.adk.agents.Callbacks.BeforeAgentCallback;
 import com.google.adk.agents.CallbackContext;
 import com.google.genai.types.Content;
 import io.reactivex.rxjava3.core.Maybe;
+import jakarta.enterprise.context.ApplicationScoped;
 
+import javax.inject.Inject;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -12,10 +14,15 @@ import java.util.concurrent.atomic.AtomicLong;
  * Callback that collects metrics about agent usage.
  * Tracks message counts, user activity, and other statistics.
  */
+@ApplicationScoped
 public class MetricsCallback implements BeforeAgentCallback {
     
     private static final AtomicLong totalMessages = new AtomicLong(0);
     private static final ConcurrentHashMap<String, AtomicLong> messagesPerUser = new ConcurrentHashMap<>();
+
+    @Inject
+    public MetricsCallback() {
+    }
     
     @Override
     public Maybe<Content> call(CallbackContext context) {

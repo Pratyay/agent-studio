@@ -27,6 +27,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>jakarta.enterprise</groupId>
+            <artifactId>jakarta.enterprise.cdi-api</artifactId>
+            <version>4.1.0</version>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- RxJava for Maybe type -->
         <dependency>
             <groupId>io.reactivex.rxjava3</groupId>

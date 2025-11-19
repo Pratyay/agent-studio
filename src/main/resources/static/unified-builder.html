@@ -35,13 +35,13 @@
             height: 60px;
             background: rgba(22, 27, 34, 0.95);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid #30363d;
+            border-bottom: 1px solid #e5e7eb;
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 24px;
             z-index: 1000;
-            box-shadow: 0 1px 0 rgba(48, 54, 61, 0.5);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
         }
 
         .nav-brand {
@@ -256,13 +256,13 @@
             font-size: 14px;
             transition: all 0.2s ease;
             font-family: -apple-system, BlinkMacSystemFont, 'SF Mono', 'Segoe UI Mono', monospace;
-            background: #0d1117;
-            color: #e6edf3;
+            background: #ffffff;
+            color: #1f2937;
         }
 
         .form-group input::placeholder,
         .form-group textarea::placeholder {
-            color: #6e7681;
+            color: #9ca3af;
         }
 
         .form-group input:focus,
@@ -271,7 +271,7 @@
             outline: none;
             border-color: #58a6ff;
             box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
-            background: #161b22;
+            background: #ffffff;
         }
 
         .form-group textarea {
@@ -1204,19 +1204,6 @@ If you don't know something, admit it rather than guessing." style="min-height: 
             </div>
 
             <div class="form-group">
-                <label>Callback Category <span class="required">*</span></label>
-                <select id="customCallbackCategory" style="width: 100%;">
-                    <option value="BeforeAgentCallback">Before Agent Callback</option>
-                    <option value="AfterAgentCallback">After Agent Callback</option>
-                    <option value="BeforeModelCallback">Before Model Callback</option>
-                    <option value="AfterModelCallback">After Model Callback</option>
-                    <option value="BeforeToolCallback">Before Tool Callback</option>
-                    <option value="AfterToolCallback">After Tool Callback</option>
-                </select>
-                <div class="form-hint">Select the type of callback to extend</div>
-            </div>
-
-            <div class="form-group">
                 <label>Implementation Type</label>
                 <div style="display: flex; gap: 12px; margin-top: 8px;">
                     <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: #c9d1d9;">
@@ -1229,6 +1216,24 @@ If you don't know something, admit it rather than guessing." style="min-height: 
                     </label>
                 </div>
                 <div class="form-hint">Stateless: Provide lambda code. Stateful: Empty class will be generated for you to implement</div>
+            </div>
+
+            <div class="form-group">
+                <label>CDI Scope <span class="required">*</span></label>
+                <select id="customCallbackScope" style="width: 100%;">
+                    <option value="ApplicationScoped">Application Scoped</option>
+                    <option value="RequestScoped">Request Scoped</option>
+                    <option value="SessionScoped">Session Scoped</option>
+                </select>
+                <div class="form-hint">Application: Singleton (default). Request: New instance per request. Session: Stateful per user session (requires Serializable)</div>
+            </div>
+
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #c9d1d9;">
+                    <input type="checkbox" id="customCallbackNeedsProducer" style="width: auto; cursor: pointer;">
+                    <span>Generate CDI Producer Class</span>
+                </label>
+                <div class="form-hint">Check this if your callback requires custom instantiation with @Produces method (e.g., for dependency injection with constructor parameters)</div>
             </div>
 
             <div class="form-group" id="lambdaCodeGroup">
@@ -1817,8 +1822,8 @@ If you don't know something, admit it rather than guessing." style="min-height: 
             document.getElementById('customCallbackName').value = '';
             document.getElementById('customCallbackDescription').value = '';
             document.getElementById('customCallbackLambda').value = '';
-            // Set default category based on context
-            document.getElementById('customCallbackCategory').value = type === 'before' ? 'BeforeAgentCallback' : 'AfterAgentCallback';
+            document.getElementById('customCallbackScope').value = 'ApplicationScoped';
+            document.getElementById('customCallbackNeedsProducer').checked = false;
             document.querySelector('input[name="customCallbackState"][value="stateless"]').checked = true;
             toggleLambdaCode();
         }
@@ -1836,9 +1841,13 @@ If you don't know something, admit it rather than guessing." style="min-height: 
         function addCustomCallback() {
             const name = document.getElementById('customCallbackName').value.trim();
             const description = document.getElementById('customCallbackDescription').value.trim();
-            const category = document.getElementById('customCallbackCategory').value;
             const state = document.querySelector('input[name="customCallbackState"]:checked').value;
             const lambda = document.getElementById('customCallbackLambda').value.trim();
+            const scope = document.getElementById('customCallbackScope').value;
+            const needsProducer = document.getElementById('customCallbackNeedsProducer').checked;
+            
+            // Auto-determine category based on context (before/after)
+            const category = currentCustomCallbackType === 'before' ? 'BeforeAgentCallback' : 'AfterAgentCallback';
 
             if (!name) {
                 showNotification('Callback name is required', 'error');
@@ -1857,7 +1866,9 @@ If you don't know something, admit it rather than guessing." style="min-height: 
                 type: currentCustomCallbackType,
                 category: category,
                 state: state,
-                lambda: lambda || null
+                lambda: lambda || null,
+                scope: scope,
+                needsProducer: needsProducer
             };
 
             customCallbacks.push(callback);
@@ -1979,7 +1990,9 @@ If you don't know something, admit it rather than guessing." style="min-height: 
                     type: cb.type,
                     category: cb.category,
                     state: cb.state,
-                    lambda: cb.lambda
+                    lambda: cb.lambda,
+                    scope: cb.scope,
+                    needsProducer: cb.needsProducer
                 }))
             };
 

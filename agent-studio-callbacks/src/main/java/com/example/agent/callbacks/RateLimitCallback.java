@@ -5,7 +5,9 @@ import com.google.adk.agents.CallbackContext;
 import com.google.genai.types.Content;
 import com.google.genai.types.Part;
 import io.reactivex.rxjava3.core.Maybe;
+import jakarta.enterprise.context.ApplicationScoped;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -14,10 +16,15 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Callback that enforces rate limiting on a per-user basis.
  * Blocks users who exceed the configured message limit within the time window.
  */
+@ApplicationScoped
 public class RateLimitCallback implements BeforeAgentCallback {
     
     private static final int MAX_MESSAGES_PER_MINUTE = 10;
     private static final long TIME_WINDOW_SECONDS = 60;
+
+    @Inject
+    public RateLimitCallback() {
+    }
     
     private static class RateLimitInfo {
         AtomicInteger count = new AtomicInteger(0);

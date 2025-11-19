@@ -5,7 +5,9 @@ import com.google.adk.agents.CallbackContext;
 import com.google.genai.types.Content;
 import com.google.genai.types.Part;
 import io.reactivex.rxjava3.core.Maybe;
+import jakarta.enterprise.context.ApplicationScoped;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -14,6 +16,7 @@ import java.util.regex.Pattern;
  * Callback that performs basic security checks on incoming messages.
  * Blocks messages containing suspicious patterns or content.
  */
+@ApplicationScoped
 public class SecurityCallback implements BeforeAgentCallback {
     
     // List of patterns that should be blocked
@@ -23,7 +26,11 @@ public class SecurityCallback implements BeforeAgentCallback {
         Pattern.compile("(?i)eval\\s*\\(", Pattern.CASE_INSENSITIVE),     // eval() calls
         Pattern.compile("(?i)on\\w+\\s*=", Pattern.CASE_INSENSITIVE)      // Event handlers
     );
-    
+
+    @Inject
+    public SecurityCallback() {
+    }
+
     @Override
     public Maybe<Content> call(CallbackContext context) {
         // Get user content if present
