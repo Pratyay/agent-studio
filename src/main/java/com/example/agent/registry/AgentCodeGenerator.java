@@ -1061,6 +1061,7 @@ public class AgentCodeGenerator {
             // Get parameter types and return type
             Class<?>[] paramTypes = callMethod.getParameterTypes();
             Class<?> returnType = callMethod.getReturnType();
+            java.lang.reflect.Type genericReturnType = callMethod.getGenericReturnType();
             
             // Generate imports
             code.append("package ").append(request.packageName).append(".callbacks;\n\n");
@@ -1098,7 +1099,7 @@ public class AgentCodeGenerator {
             // Generate method signature from reflection
             StringBuilder methodSig = new StringBuilder();
             methodSig.append("    @Override\n");
-            methodSig.append("    public ").append(returnType.getSimpleName()).append(" call(");
+            methodSig.append("    public ").append(getReadableTypeName(genericReturnType)).append(" call(");
             
             // Add parameters with meaningful names based on types
             for (int i = 0; i < paramTypes.length; i++) {
@@ -1111,7 +1112,7 @@ public class AgentCodeGenerator {
             if ("stateless".equals(callback.state) && callback.lambda != null && !callback.lambda.trim().isEmpty()) {
                 // Generate stateless callback with lambda
                 // Build functional interface type based on parameter count
-                String funcInterface = buildFunctionalInterface(paramTypes, returnType);
+                String funcInterface = buildFunctionalInterface(paramTypes, genericReturnType);
                 code.append("    private final ").append(funcInterface).append(" implementation = ");
                 code.append(callback.lambda);
                 code.append(";\n\n");
@@ -1137,7 +1138,7 @@ public class AgentCodeGenerator {
                     code.append(paramTypes[i].getSimpleName());
                 }
                 code.append("\n");
-                code.append("     * Returns: ").append(returnType.getSimpleName()).append("\n");
+                code.append("     * Returns: ").append(getReadableTypeName(genericReturnType)).append("\n");
                 code.append("     */\n");
                 code.append(methodSig);
                 code.append("        // Add your custom logic here\n");
@@ -1147,13 +1148,13 @@ public class AgentCodeGenerator {
                 code.append("        \n");
                 
                 // Generate appropriate return statement based on return type
-                String returnTypeName = returnType.getSimpleName();
+                String returnTypeName = getReadableTypeName(genericReturnType);
                 if ("void".equals(returnTypeName)) {
                     code.append("        // No return needed for void\n");
-                } else if ("Maybe".equals(returnTypeName)) {
+                } else if (returnTypeName.startsWith("Maybe")) {
                     code.append("        // Return empty Maybe to continue with normal flow\n");
                     code.append("        return Maybe.empty();\n");
-                } else if ("Optional".equals(returnTypeName)) {
+                } else if (returnTypeName.startsWith("Optional")) {
                     code.append("        // Return empty Optional to continue with normal flow\n");
                     code.append("        return Optional.empty();\n");
                 } else {
@@ -1170,6 +1171,32 @@ public class AgentCodeGenerator {
         }
         
         return code.toString();
+    }
+    
+    /**
+     * Convert a Type (including generic types) to a readable string
+     */
+    private String getReadableTypeName(java.lang.reflect.Type type) {
+        if (type instanceof Class) {
+            return ((Class<?>) type).getSimpleName();
+        } else if (type instanceof java.lang.reflect.ParameterizedType) {
+            java.lang.reflect.ParameterizedType pType = (java.lang.reflect.ParameterizedType) type;
+            Class<?> rawType = (Class<?>) pType.getRawType();
+            StringBuilder sb = new StringBuilder(rawType.getSimpleName());
+            
+            java.lang.reflect.Type[] typeArgs = pType.getActualTypeArguments();
+            if (typeArgs.length > 0) {
+                sb.append("<");
+                for (int i = 0; i < typeArgs.length; i++) {
+                    if (i > 0) sb.append(", ");
+                    sb.append(getReadableTypeName(typeArgs[i]));
+                }
+                sb.append(">");
+            }
+            return sb.toString();
+        } else {
+            return type.toString();
+        }
     }
     
     /**
@@ -1203,12 +1230,13 @@ public class AgentCodeGenerator {
     /**
      * Build functional interface type string based on parameters
      */
-    private String buildFunctionalInterface(Class<?>[] paramTypes, Class<?> returnType) {
+    private String buildFunctionalInterface(Class<?>[] paramTypes, java.lang.reflect.Type genericReturnType) {
+        String returnTypeName = getReadableTypeName(genericReturnType);
         if (paramTypes.length == 1) {
-            return "java.util.function.Function<" + paramTypes[0].getSimpleName() + ", " + returnType.getSimpleName() + ">";
+            return "java.util.function.Function<" + paramTypes[0].getSimpleName() + ", " + returnTypeName + ">";
         } else if (paramTypes.length == 2) {
             return "java.util.function.BiFunction<" + paramTypes[0].getSimpleName() + ", " + 
-                   paramTypes[1].getSimpleName() + ", " + returnType.getSimpleName() + ">";
+                   paramTypes[1].getSimpleName() + ", " + returnTypeName + ">";
         } else {
             // For 3+ parameters, we'll need to create a custom functional interface or use a generic approach
             // For now, use a lambda-compatible approach
