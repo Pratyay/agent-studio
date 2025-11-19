@@ -6,6 +6,8 @@ import io.a2a.client.ClientEvent;
 import io.a2a.client.MessageEvent;
 import io.a2a.client.config.ClientConfig;
 import io.a2a.client.http.A2ACardResolver;
+import io.a2a.client.transport.grpc.GrpcTransport;
+import io.a2a.client.transport.grpc.GrpcTransportConfig;
 import io.a2a.client.transport.jsonrpc.JSONRPCTransport;
 import io.a2a.client.transport.jsonrpc.JSONRPCTransportConfig;
 import io.a2a.client.transport.rest.RestTransport;
@@ -15,6 +17,8 @@ import io.a2a.spec.Message;
 import io.a2a.spec.Part;
 import io.a2a.spec.TextPart;
 import io.a2a.spec.Task;
+import io.grpc.Channel;
+import io.grpc.ManagedChannelBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
@@ -30,81 +34,81 @@ import java.util.function.Consumer;
  * Service for managing A2A client connections
  */
 public class A2AClientService {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(A2AClientService.class);
     private static final String REDIS_KEY_PREFIX = "a2a:agent:";
-    
+
     private final Map<String, Client> clients = new ConcurrentHashMap<>();
     private final Map<String, CompletableFuture<String>> pendingResponses = new ConcurrentHashMap<>();
     private final Map<String, String> agentUrls = new ConcurrentHashMap<>();
     private final JedisPool jedisPool;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    
+
     public A2AClientService(String redisHost, int redisPort) {
         JedisPoolConfig poolConfig = new JedisPoolConfig();
         poolConfig.setMaxTotal(10);
         this.jedisPool = new JedisPool(poolConfig, redisHost, redisPort);
-        
+
         // Load existing agents from Redis on startup
         loadAgentsFromRedis();
     }
-    
+
     /**
      * Connect to an A2A agent and retrieve its agent card
      */
     public A2AAgentMetadata connectToAgent(String agentUrl) throws Exception {
         logger.info("Connecting to A2A agent at: {}", agentUrl);
-        
+
         try {
             // Fetch the agent card using A2ACardResolver
             AgentCard agentCard = fetchAgentCard(agentUrl);
-            
+
             if (agentCard == null) {
                 throw new Exception("Failed to retrieve agent card from: " + agentUrl);
             }
-            
+
             // Generate agent ID
             String agentId = generateAgentId(agentCard.name(), agentUrl);
-            
+
             // Create A2A client with proper transport configuration
             Client client = createClient(agentCard, agentId);
             clients.put(agentId, client);
             agentUrls.put(agentId, agentUrl);
-            
+
             // Convert agent card to metadata
             A2AAgentMetadata metadata = convertAgentCardToMetadata(agentId, agentCard, agentUrl);
-            
+
             // Save to Redis
             saveAgentToRedis(metadata);
-            
+
             logger.info("Successfully connected to A2A agent: {} ({})", agentCard.name(), agentId);
-            
+
             return metadata;
-            
+
         } catch (Exception e) {
             logger.error("Failed to connect to A2A agent at {}: {}", agentUrl, e.getMessage(), e);
             throw new Exception("Failed to connect to A2A agent: " + e.getMessage(), e);
         }
     }
-    
+
     /**
      * Create an A2A client with proper transport and event handlers
      */
     private Client createClient(AgentCard agentCard, String agentId) {
-        
+
         // Create client config to accept streaming
         ClientConfig clientConfig = new ClientConfig.Builder()
                 .setAcceptedOutputModes(List.of("text"))
                 .build();
-        
+
         // Create consumers list for handling client events
         List<BiConsumer<ClientEvent, AgentCard>> consumers = new ArrayList<>();
         consumers.add((event, card) -> {
             String eventType = event.getClass().getSimpleName();
             logger.info("[A2A Event for {}] Received: {} ({})", agentId, eventType, event.getClass().getName());
-            
+
             StringBuilder textBuilder = new StringBuilder();
-            
+
             // Handle MessageEvent
             if (event instanceof MessageEvent messageEvent) {
                 Message responseMessage = messageEvent.getMessage();
@@ -116,7 +120,7 @@ public class A2AClientService {
                     }
                 }
             }
-            
+
             // Try to extract task and artifacts from TaskUpdateEvent
             try {
                 var getTask = event.getClass().getMethod("getTask");
@@ -136,7 +140,7 @@ public class A2AClientService {
             } catch (Exception e) {
                 logger.debug("Could not get task from event: {}", e.getMessage());
             }
-            
+
             // Also try getArtifact().getParts() for direct artifact events
             try {
                 var getArtifact = event.getClass().getMethod("getArtifact");
@@ -156,11 +160,11 @@ public class A2AClientService {
             } catch (Exception ignored) {
                 // Not an artifact event
             }
-            
+
             if (textBuilder.length() > 0) {
                 String responseText = textBuilder.toString();
                 logger.info("Extracted text response from {}: {}", agentId, responseText);
-                
+
                 // Complete any pending future for this agent
                 CompletableFuture<String> future = pendingResponses.remove(agentId);
                 if (future != null) {
@@ -168,13 +172,14 @@ public class A2AClientService {
                 }
             }
         });
-        
+
         // Create error handler for streaming errors
         Consumer<Throwable> streamingErrorHandler = (error) -> {
             logger.error("Streaming error occurred: {}", error.getMessage(), error);
         };
-        
-        // Build client with available transport protocols (JSONRPC and REST)
+
+
+        // Build client with JSONRPC transport
         Client client = Client
                 .builder(agentCard)
                 .clientConfig(clientConfig)
@@ -348,7 +353,8 @@ public class A2AClientService {
      */
     private AgentCard fetchAgentCard(String agentUrl) throws Exception {
         try {
-            // Fetch agent card using A2ACardResolver
+            // A2ACardResolver automatically tries .well-known/agent-card.json
+            // Just pass the base URL
             A2ACardResolver resolver = new A2ACardResolver(agentUrl);
             AgentCard agentCard = resolver.getAgentCard();
             logger.info("Successfully fetched agent card from: {}", agentUrl);

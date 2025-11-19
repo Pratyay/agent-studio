@@ -209,7 +209,8 @@ public class AgentCodeGenerator {
         code.append("public class ").append(className).append(" {\n\n");
         
         // Fields
-        code.append("    public static BaseAgent ROOT_AGENT;\n");
+        code.append("    private static BaseAgent ROOT_AGENT;\n");
+        code.append("    private static volatile boolean initialized = false;\n");
         
         // Collect all callback injections first before building the lists
         List<String> allBeforeAgentCallbacks = new ArrayList<>();
@@ -306,7 +307,24 @@ public class AgentCodeGenerator {
         code.append("     */\n");
         code.append("    @jakarta.annotation.PostConstruct\n");
         code.append("    public void init() {\n");
-        code.append("        ROOT_AGENT = createAgent();\n");
+        code.append("        synchronized (").append(className).append(".class) {\n");
+        code.append("            if (!initialized) {\n");
+        code.append("                ROOT_AGENT = createAgent();\n");
+        code.append("                initialized = true;\n");
+        code.append("                System.out.println(\"[Agent] ").append(className).append(" initialized successfully\");\n");
+        code.append("            }\n");
+        code.append("        }\n");
+        code.append("    }\n\n");
+        
+        // Add getter with null check
+        code.append("    /**\n");
+        code.append("     * Get the ROOT_AGENT instance. Throws IllegalStateException if not initialized.\n");
+        code.append("     */\n");
+        code.append("    public static BaseAgent getAgent() {\n");
+        code.append("        if (!initialized || ROOT_AGENT == null) {\n");
+        code.append("            throw new IllegalStateException(\"Agent not initialized. Ensure CDI container has started.\");\n");
+        code.append("        }\n");
+        code.append("        return ROOT_AGENT;\n");
         code.append("    }\n\n");
         
         // Create agent
@@ -664,7 +682,7 @@ public class AgentCodeGenerator {
         code.append("        try {\n");
         code.append("            System.out.println(\"[Chat] Received message: \" + message);\n");
         code.append("            // Create runner and session\n");
-        code.append("            InMemoryRunner runner = new InMemoryRunner(ROOT_AGENT);\n");
+        code.append("            InMemoryRunner runner = new InMemoryRunner(getAgent());\n");
         code.append("            Session session = runner\n");
         code.append("                .sessionService()\n");
         code.append("                .createSession(runner.appName(), \"user\")\n");
@@ -1025,10 +1043,11 @@ public class AgentCodeGenerator {
         readme.append("- `GET /tasks/{taskId}`: Get task status\n");
         readme.append("- `DELETE /tasks/{taskId}`: Cancel a task\n\n");
         readme.append("### Programmatic Integration\n\n");
-        readme.append("You can also integrate this agent into your own application using the ROOT_AGENT field:\n\n");
+        readme.append("You can also integrate this agent into your own application using the getAgent() method:\n\n");
         readme.append("```java\n");
         readme.append("import ").append(request.packageName).append(".").append(capitalize(request.agentName)).append("Agent;\n\n");
-        readme.append("BaseAgent agent = ").append(capitalize(request.agentName)).append("Agent.ROOT_AGENT;\n");
+        readme.append("// Get the initialized agent instance (after CDI container starts)\n");
+        readme.append("BaseAgent agent = ").append(capitalize(request.agentName)).append("Agent.getAgent();\n");
         readme.append("// Use the agent in your application\n");
         readme.append("```\n\n");
         readme.append("---\n");
