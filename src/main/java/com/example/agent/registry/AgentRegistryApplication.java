@@ -28,7 +28,7 @@ public class AgentRegistryApplication extends Application<AgentRegistryConfigura
     @Override
     public void initialize(Bootstrap<AgentRegistryConfiguration> bootstrap) {
         // Serve static assets from /static classpath directory at /ui URI path
-        bootstrap.addBundle(new AssetsBundle("/static", "/ui", "agent-builder.html"));
+        bootstrap.addBundle(new AssetsBundle("/static", "/ui", "index.html", "assets"));
     }
     
     @Override
@@ -54,12 +54,14 @@ public class AgentRegistryApplication extends Application<AgentRegistryConfigura
         );
         
         // Register resources
+        final RootRedirectResource rootRedirect = new RootRedirectResource();
         final AgentRegistryResource agentResource = new AgentRegistryResource(registry, loader, router);
         final ToolRegistryResource toolResource = new ToolRegistryResource(toolRegistry);
         final CallbackRegistryResource callbackResource = new CallbackRegistryResource(callbackRegistry);
         final MCPDiscoveryResource mcpDiscoveryResource = new MCPDiscoveryResource();
         final AgentGeneratorResource generatorResource = new AgentGeneratorResource(toolRegistry, a2aClientService);
         final A2AAgentResource a2aAgentResource = new A2AAgentResource(a2aClientService);
+        environment.jersey().register(rootRedirect);
         environment.jersey().register(agentResource);
         environment.jersey().register(toolResource);
         environment.jersey().register(callbackResource);

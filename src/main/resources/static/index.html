@@ -1,0 +1,2912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Studio · Professional Builder</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 0;
+            color: #050505;
+            overflow-x: hidden;
+        }
+
+        .main-container {
+            display: flex;
+            height: 100vh;
+            max-width: 100%;
+            margin: 0;
+            background: #f0f2f5;
+            position: relative;
+        }
+
+        /* Left Sidebar Navigation */
+        .left-sidebar {
+            background: #ffffff;
+            border-right: 1px solid #dadde1;
+            padding: 72px 0 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: fixed;
+            width: 240px;
+            z-index: 100;
+            left: 0;
+            top: 0;
+        }
+
+        .left-sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .left-sidebar::-webkit-scrollbar-track {
+            background: #f0f2f5;
+        }
+
+        .left-sidebar::-webkit-scrollbar-thumb {
+            background: #ccd0d5;
+            border-radius: 3px;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 0 8px;
+        }
+
+        .nav-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: #050505;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .nav-menu-item:hover {
+            background: #f0f2f5;
+        }
+
+        .nav-menu-item.active {
+            background: #e7f3ff;
+            color: #1877f2;
+        }
+
+        .nav-menu-item-icon {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .nav-menu-divider {
+            height: 1px;
+            background: #e4e6eb;
+            margin: 8px 16px;
+        }
+
+        /* Top Navigation Bar - Facebook style */
+        .top-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background: #ffffff;
+            border-bottom: 1px solid #dadde1;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 16px;
+            z-index: 1000;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-brand {
+            position: fixed;
+            left: 16px;
+            top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #1877f2;
+            letter-spacing: -0.3px;
+            z-index: 1001;
+        }
+
+        .nav-brand-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #1877f2 0%, #0c63d4 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 2px 8px rgba(24, 119, 242, 0.3);
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            padding: 7px 12px;
+            border: none;
+            background: #e4e6eb;
+            color: #050505;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: #d8dadf;
+        }
+
+        .nav-btn.primary {
+            background: #1877f2;
+            color: white;
+        }
+
+        .nav-btn.primary:hover {
+            background: #166fe5;
+        }
+
+        .nav-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 8px 4px 4px;
+            background: #e4e6eb;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-profile:hover {
+            background: #d8dadf;
+        }
+
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1877f2 0%, #0c63d4 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .profile-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #050505;
+            line-height: 1.2;
+        }
+
+        .profile-status {
+            font-size: 11px;
+            color: #65676b;
+            line-height: 1.2;
+        }
+
+        .form-area {
+            flex: 1;
+            margin-top: 56px;
+            margin-left: 240px;
+            margin-right: 360px;
+            padding: 16px;
+            overflow-y: auto;
+            background: #f0f2f5;
+            height: calc(100vh - 56px);
+        }
+
+        .form-content {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .form-header {
+            margin-bottom: 16px;
+            background: white;
+            padding: 20px 24px;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #050505;
+            margin-bottom: 4px;
+            letter-spacing: -0.4px;
+        }
+
+        .form-header p {
+            color: #65676b;
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        .section {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 12px;
+            border: 1px solid #e4e6eb;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .section:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e4e6eb;
+        }
+
+        .section-header h2 {
+            font-size: 17px;
+            font-weight: 600;
+            color: #050505;
+            letter-spacing: -0.2px;
+        }
+
+        .section-icon {
+            font-size: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 15px;
+            font-weight: 600;
+            color: #050505;
+            margin-bottom: 6px;
+        }
+
+        .form-group label .required {
+            color: #f02849;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccd0d5;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f6f7;
+            color: #050505;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #8a8d91;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #1877f2;
+            background: #ffffff;
+            box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+            line-height: 1.5;
+        }
+
+        .callback-selector {
+            position: relative;
+        }
+
+        .callback-bar {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccd0d5;
+            border-radius: 6px;
+            background: #f5f6f7;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+            min-height: 44px;
+        }
+
+        .callback-bar:hover {
+            border-color: #1877f2;
+            background: #e7f3ff;
+        }
+
+        .callback-bar.open {
+            border-color: #1877f2;
+            background: #ffffff;
+            box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+        }
+
+        .callback-selected {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .callback-tag {
+            background: #e7f3ff;
+            color: #1877f2;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            border: 1px solid #d0e4f5;
+        }
+
+        .callback-tag:hover {
+            background: #cfe5fc;
+        }
+
+        .callback-tag-remove {
+            background: transparent;
+            border: none;
+            color: #1877f2;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 1;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .callback-tag-remove:hover {
+            background: #1877f2;
+            color: white;
+        }
+
+        .callback-placeholder {
+            color: #8a8d91;
+            font-size: 15px;
+        }
+
+        .callback-arrow {
+            color: #65676b;
+            font-size: 12px;
+            transition: transform 0.2s ease;
+            margin-left: 8px;
+        }
+
+        .callback-bar.open .callback-arrow {
+            transform: rotate(180deg);
+            color: #1877f2;
+        }
+
+        .callback-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 4px;
+            background: #ffffff;
+            border: 1px solid #ccd0d5;
+            border-radius: 8px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+            max-height: 320px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+            animation: dropdownSlide 0.2s ease;
+        }
+
+        @keyframes dropdownSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .callback-dropdown.open {
+            display: block;
+        }
+
+        .callback-dropdown::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .callback-dropdown::-webkit-scrollbar-track {
+            background: #f5f6f7;
+        }
+
+        .callback-dropdown::-webkit-scrollbar-thumb {
+            background: #ccd0d5;
+            border-radius: 4px;
+        }
+
+        .callback-dropdown::-webkit-scrollbar-thumb:hover {
+            background: #b0b3b8;
+        }
+
+        .callback-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border-bottom: 1px solid #f0f2f5;
+            position: relative;
+        }
+
+        .callback-option:last-child {
+            border-bottom: none;
+        }
+
+        .callback-option:hover {
+            background: #f5f6f7;
+        }
+
+        .callback-option.selected {
+            background: #e7f3ff;
+            border-left: 3px solid #1877f2;
+            padding-left: 13px;
+        }
+
+        .callback-option.selected:hover {
+            background: #d0e4f5;
+        }
+
+        .callback-option.selected::before {
+            content: '✓';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #1877f2;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .callback-option-name {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #050505;
+        }
+
+        .callback-option.selected .callback-option-name {
+            color: #1877f2;
+        }
+
+        .callback-option-desc {
+            font-size: 13px;
+            color: #65676b;
+            line-height: 1.4;
+        }
+
+        .callback-empty {
+            padding: 20px;
+            text-align: center;
+            color: #8a8d91;
+            font-size: 15px;
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: #65676b;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .form-hint a {
+            color: #1877f2;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .form-hint a:hover {
+            text-decoration: underline;
+        }
+
+        .dropzone {
+            border: 2px dashed #ccd0d5;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            background: #f5f6f7;
+            min-height: 140px;
+            transition: all 0.2s;
+        }
+
+        .dropzone.drag-over {
+            border-color: #1877f2;
+            background: #e7f3ff;
+        }
+
+        .dropzone-placeholder {
+            color: #8a8d91;
+            font-size: 15px;
+            padding: 16px 0;
+        }
+
+        .attached-item {
+            background: #f5f6f7;
+            border: 1px solid #e4e6eb;
+            color: #050505;
+            padding: 12px 14px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+            border-left: 3px solid #1877f2;
+        }
+
+        .attached-item:hover {
+            background: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .attached-item.subagent {
+            border-left-color: #42b72a;
+        }
+
+        .attached-item-info h4 {
+            margin-bottom: 4px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #050505;
+        }
+
+        .attached-item-info p {
+            font-size: 12px;
+            color: #65676b;
+        }
+
+        .remove-item {
+            background: transparent;
+            border: 1px solid #ccd0d5;
+            color: #65676b;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .remove-item:hover {
+            background: #f02849;
+            border-color: #f02849;
+            color: white;
+        }
+
+        .sidebar {
+            background: #ffffff;
+            border-left: 1px solid #dadde1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 56px);
+            margin-top: 56px;
+            position: fixed;
+            right: 0;
+            width: 360px;
+            z-index: 50;
+        }
+
+        .sidebar-header {
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e4e6eb;
+        }
+
+        .sidebar-header h3 {
+            font-size: 15px;
+            color: #050505;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 9px 12px;
+            background: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+
+        .register-btn:hover {
+            background: #166fe5;
+        }
+
+        .register-btn.a2a {
+            background: #42b72a;
+        }
+
+        .register-btn.a2a:hover {
+            background: #36a420;
+        }
+
+        .search-box {
+            margin: 12px 0;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccd0d5;
+            border-radius: 20px;
+            font-size: 15px;
+            background: #f5f6f7;
+            color: #050505;
+        }
+
+        .search-box input::placeholder {
+            color: #8a8d91;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #1877f2;
+            background: #ffffff;
+            box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+        }
+
+        .tools-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .tool-category {
+            padding: 12px 0 8px;
+            font-weight: 600;
+            font-size: 13px;
+            color: #65676b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tool-item {
+            background: #f5f6f7;
+            border: 1px solid #e4e6eb;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            cursor: move;
+            transition: all 0.2s;
+        }
+
+        .tool-item:hover {
+            background: #e7f3ff;
+            border-color: #1877f2;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .tool-item.dragging {
+            opacity: 0.4;
+        }
+
+        .tool-item.a2a {
+            border-left: 3px solid #42b72a;
+        }
+
+        .tool-item.a2a:hover {
+            background: #e6f8e0;
+        }
+
+        .tool-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tool-item-delete {
+            background: transparent;
+            border: 1px solid #ccd0d5;
+            color: #65676b;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .tool-item:hover .tool-item-delete {
+            display: flex;
+        }
+
+        .tool-item-delete:hover {
+            background: #f02849;
+            border-color: #f02849;
+            color: white;
+        }
+
+        .tool-name {
+            font-weight: 600;
+            color: #050505;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 15px;
+        }
+
+        .tool-status {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .tool-status.healthy { 
+            background: #42b72a; 
+            box-shadow: 0 0 4px #42b72a; 
+        }
+        
+        .tool-status.unhealthy { 
+            background: #f02849; 
+            box-shadow: 0 0 4px #f02849; 
+        }
+
+        .tool-endpoint {
+            font-size: 12px;
+            color: #65676b;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #1877f2;
+            color: white;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: #166fe5;
+            box-shadow: 0 4px 12px rgba(24, 119, 242, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e4e6eb;
+            color: #050505;
+            padding: 10px 16px;
+            font-size: 15px;
+        }
+
+        .btn-secondary:hover {
+            background: #d8dadf;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border: 1px solid #dadde1;
+            border-radius: 8px;
+            padding: 20px 24px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: #050505;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e4e6eb;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #e4e6eb;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-btn.primary {
+            background: #1877f2;
+            color: white;
+        }
+
+        .modal-btn.primary:hover {
+            background: #166fe5;
+        }
+
+        .modal-btn.secondary {
+            background: #e4e6eb;
+            color: #050505;
+        }
+
+        .modal-btn.secondary:hover {
+            background: #d8dadf;
+        }
+
+        .notification {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            padding: 12px 16px;
+            background: #ffffff;
+            border: 1px solid #dadde1;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            z-index: 3000;
+            display: none;
+            font-size: 15px;
+            font-weight: 500;
+            color: #050505;
+            min-width: 300px;
+        }
+
+        .notification.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { 
+                transform: translateX(400px); 
+                opacity: 0; 
+            }
+            to { 
+                transform: translateX(0); 
+                opacity: 1; 
+            }
+        }
+
+        .notification.success {
+            border-left: 4px solid #42b72a;
+            background: #e6f8e0;
+        }
+
+        .notification.error {
+            border-left: 4px solid #f02849;
+            background: #ffe4e8;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #8a8d91;
+            padding: 24px 16px;
+            font-size: 15px;
+        }
+
+        /* Chat Interface Styles - Facebook Messenger inspired */
+        .chat-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e4e6eb;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-header h3 {
+            font-size: 17px;
+            font-weight: 600;
+            color: #050505;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chat-toggle-btn {
+            padding: 8px 16px;
+            background: #1877f2;
+            border: none;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .chat-toggle-btn:hover {
+            background: #166fe5;
+        }
+
+        .chat-toggle-btn.active {
+            background: #f02849;
+        }
+
+        .chat-container {
+            background: #f5f6f7;
+            border-radius: 8px;
+            border: 1px solid #e4e6eb;
+            overflow: hidden;
+            display: none;
+        }
+
+        .chat-container.open {
+            display: block;
+        }
+
+        .chat-messages {
+            padding: 16px;
+            max-height: 400px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: max-height 0.3s ease;
+        }
+
+        .chat-container.open .chat-messages {
+            max-height: 500px;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f5f6f7;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #ccd0d5;
+            border-radius: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #b0b3b8;
+        }
+
+        .chat-message {
+            padding: 8px 12px;
+            border-radius: 18px;
+            max-width: 70%;
+            word-wrap: break-word;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .chat-message.user {
+            background: #1877f2;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-message.agent {
+            background: #e4e6eb;
+            color: #050505;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-message.system {
+            background: #ffe4e8;
+            color: #f02849;
+            margin: 0 auto;
+            font-size: 13px;
+            text-align: center;
+            border-radius: 16px;
+        }
+
+        .chat-message-header {
+            font-size: 11px;
+            opacity: 0.8;
+            margin-bottom: 2px;
+            font-weight: 600;
+        }
+
+        .chat-message-time {
+            font-size: 11px;
+            opacity: 0.6;
+            margin-top: 4px;
+        }
+
+        .chat-input-area {
+            padding: 12px;
+            background: #ffffff;
+            border-top: 1px solid #e4e6eb;
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px 12px;
+            background: #f5f6f7;
+            border: 1px solid #ccd0d5;
+            border-radius: 20px;
+            color: #050505;
+            font-size: 15px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            resize: none;
+            min-height: 40px;
+            max-height: 100px;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #1877f2;
+            background: #ffffff;
+        }
+
+        .chat-send-btn {
+            padding: 10px 20px;
+            background: #1877f2;
+            border: none;
+            color: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .chat-send-btn:hover:not(:disabled) {
+            background: #166fe5;
+        }
+
+        .chat-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .chat-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: #8a8d91;
+            font-size: 15px;
+        }
+
+        .chat-loading {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #e4e6eb;
+            color: #65676b;
+            border-radius: 18px;
+            max-width: 70%;
+            margin-right: auto;
+            font-size: 15px;
+        }
+
+        .chat-loading-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ccd0d5;
+            border-top-color: #1877f2;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Custom scrollbar for main areas */
+        .form-area::-webkit-scrollbar,
+        .sidebar::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .form-area::-webkit-scrollbar-track,
+        .sidebar::-webkit-scrollbar-track {
+            background: #f0f2f5;
+        }
+
+        .form-area::-webkit-scrollbar-thumb,
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #ccd0d5;
+            border-radius: 5px;
+        }
+
+        .form-area::-webkit-scrollbar-thumb:hover,
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #b0b3b8;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <div class="top-nav">
+        <div class="nav-brand">
+            <div class="nav-brand-icon">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="white">
+                    <path d="M11 3L3 10h5v7l8-7h-5V3z"/>
+                </svg>
+            </div>
+            <span>Agent Studio</span>
+        </div>
+        <div class="nav-actions">
+            <div class="nav-profile">
+                <div class="profile-avatar">G</div>
+                <div class="profile-info">
+                    <div class="profile-name">Guest User</div>
+                    <div class="profile-status">Not authenticated</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Left Sidebar Navigation -->
+    <div class="left-sidebar">
+        <nav class="nav-menu">
+            <a href="#" class="nav-menu-item active" onclick="showSection('builder'); return false;">
+                <div class="nav-menu-item-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                    </svg>
+                </div>
+                <span>Home</span>
+            </a>
+            <a href="#" class="nav-menu-item" onclick="showSection('about'); return false;">
+                <div class="nav-menu-item-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <span>About Us</span>
+            </a>
+            <a href="#" class="nav-menu-item" onclick="showSection('docs'); return false;">
+                <div class="nav-menu-item-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+                    </svg>
+                </div>
+                <span>Documentation</span>
+            </a>
+            <a href="#" class="nav-menu-item" onclick="showSection('settings'); return false;">
+                <div class="nav-menu-item-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <span>Settings</span>
+            </a>
+            
+            <div class="nav-menu-divider"></div>
+            
+            <a href="#" class="nav-menu-item" onclick="logout(); return false;">
+                <div class="nav-menu-item-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <span>Log Out</span>
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-container">
+        <!-- Main Form Area -->
+        <div class="form-area" id="builderSection">
+            <div class="form-content">
+                <div class="form-header">
+                    <h1>Build Your AI Agent</h1>
+                    <p>Configure and deploy production-ready AI agents with MCP tools and sub-agents</p>
+                </div>
+
+            <!-- Basic Information -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>Basic Information</h2>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Agent Name <span class="required">*</span></label>
+                        <input type="text" id="agentName" placeholder="ex: shopping-agent">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Version</label>
+                        <input type="text" id="agentVersion" placeholder="1.0" value="1.0">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="agentDescription" placeholder="Brief description of what this agent does and its key capabilities..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>System Instructions</label>
+                    <textarea id="agentInstructions" placeholder="Detailed instructions on how the agent should behave...
+
+Example:
+You are a helpful assistant. Always be polite and concise.
+When answering questions, provide clear explanations.
+If you don't know something, admit it rather than guessing." style="min-height: 140px;"></textarea>
+                    <div class="form-hint">Provide guidance on tone, approach, and behavior</div>
+                </div>
+            </div>
+
+            <!-- MCP Tools -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>MCP Tools</h2>
+                </div>
+
+                <div class="dropzone" id="toolsDropzone" ondrop="dropTool(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event, 'tools')">
+                    <div class="dropzone-placeholder" id="toolsPlaceholder">
+                        Drag and drop MCP tools from the sidebar →
+                    </div>
+                    <div id="attachedTools"></div>
+                </div>
+            </div>
+
+            <!-- Sub-Agents -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>Sub-Agents</h2>
+                </div>
+
+                <div class="dropzone" id="subagentsDropzone" ondrop="dropSubagent(event)" ondragover="allowDrop(event)" ondragleave="dragLeave(event, 'subagents')">
+                    <div class="dropzone-placeholder" id="subagentsPlaceholder">
+                        Drag and drop A2A agents from the sidebar →
+                    </div>
+                    <div id="attachedSubagents"></div>
+                </div>
+            </div>
+
+            <!-- Configuration -->
+            <div class="section">
+                <div class="section-header">
+                    <h2>Configuration</h2>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Package Name</label>
+                        <input type="text" id="agentPackage" placeholder="com.example.agent" value="com.example.agent">
+                        <div class="form-hint">Java package for generated code</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Server Port</label>
+                        <input type="number" id="serverPort" placeholder="8000" value="8000" min="1024" max="65535">
+                        <div class="form-hint">Port for the agent server (1024-65535)</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Google API Key</label>
+                    <input type="password" id="googleApiKey" placeholder="***..." autocomplete="off">
+                    <div class="form-hint">Get your key from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a></div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Before Agent Callbacks</label>
+                        <div class="callback-selector">
+                            <div class="callback-bar" onclick="toggleCallbackDropdown('before')">
+                                <div class="callback-selected" id="beforeCallbacksSelected">
+                                    <span class="callback-placeholder">Select callbacks...</span>
+                                </div>
+                                <span class="callback-arrow">▼</span>
+                            </div>
+                            <div class="callback-dropdown" id="beforeCallbacksDropdown">
+                                <div class="callback-empty">Loading callbacks...</div>
+                            </div>
+                        </div>
+                        <div class="form-hint">Click to select multiple callbacks</div>
+                        <button class="btn" style="margin-top: 8px; padding: 8px 12px; font-size: 13px; background: #1877f2; color: white;" onclick="openCustomCallbackModal('before')">+ Add Custom Callback</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label>After Agent Callbacks</label>
+                        <div class="callback-selector">
+                            <div class="callback-bar" onclick="toggleCallbackDropdown('after')">
+                                <div class="callback-selected" id="afterCallbacksSelected">
+                                    <span class="callback-placeholder">Select callbacks...</span>
+                                </div>
+                                <span class="callback-arrow">▼</span>
+                            </div>
+                            <div class="callback-dropdown" id="afterCallbacksDropdown">
+                                <div class="callback-empty">Loading callbacks...</div>
+                            </div>
+                        </div>
+                        <div class="form-hint">Click to select multiple callbacks</div>
+                        <button class="btn" style="margin-top: 8px; padding: 8px 12px; font-size: 13px; background: #1877f2; color: white;" onclick="openCustomCallbackModal('after')">+ Add Custom Callback</button>
+                    </div>
+                </div>
+
+                <!-- Custom Callbacks Display -->
+                <div id="customCallbacksDisplay" style="display: none; margin-top: 20px;">
+                    <label style="display: block; margin-bottom: 12px; color: #65676b; font-size: 15px; font-weight: 600;">Custom Callbacks</label>
+                    <div id="customCallbacksList"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>A2A Transport Protocols</label>
+                    <div class="callback-selector">
+                        <div class="callback-bar" onclick="toggleCallbackDropdown('transport')">
+                            <div class="callback-selected" id="transportSelected">
+                                <span class="callback-placeholder">Select transport protocols...</span>
+                            </div>
+                            <span class="callback-arrow">▼</span>
+                        </div>
+                        <div class="callback-dropdown" id="transportDropdown">
+                            <div class="callback-option" onclick="toggleTransport('JSONRPC', 'JSON-RPC 2.0')" data-value="JSONRPC">
+                                <div class="callback-option-name">JSON-RPC 2.0</div>
+                                <div class="callback-option-desc">Standard JSON-RPC 2.0 transport protocol</div>
+                            </div>
+                            <div class="callback-option" onclick="toggleTransport('GRPC', 'gRPC')" data-value="GRPC">
+                                <div class="callback-option-name">gRPC</div>
+                                <div class="callback-option-desc">High-performance gRPC transport</div>
+                            </div>
+                            <div class="callback-option" onclick="toggleTransport('REST', 'HTTP+JSON/REST')" data-value="REST">
+                                <div class="callback-option-name">HTTP+JSON/REST</div>
+                                <div class="callback-option-desc">RESTful HTTP+JSON transport</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-hint">Select transport protocols for agent-to-agent communication</div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="generateAgent()">Generate & Download Agent</button>
+                <button class="btn btn-secondary" onclick="clearForm()">Clear Form</button>
+            </div>
+
+            </div>
+        </div>
+
+        <!-- Sidebar - Tool Library -->
+        <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Tool Library</h3>
+            <button class="register-btn" onclick="openRegisterModal()">+ Register MCP Tool</button>
+            <button class="register-btn a2a" onclick="openA2ARegisterModal()">+ Register A2A Agent</button>
+        </div>
+
+            <div class="search-box">
+                <input type="text" id="toolSearch" placeholder="Search tools..." onkeyup="filterTools()">
+            </div>
+
+            <div class="tools-list" id="toolsList">
+                <div class="empty-state">Loading tools...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register MCP Tool Modal -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header">Register New MCP Tool</div>
+
+            <div class="form-group">
+                <label>Tool Name <span class="required">*</span></label>
+                <input type="text" id="newToolName" placeholder="e.g., weather-tool">
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="newToolDescription" placeholder="What does this tool do?"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>MCP Server Endpoint <span class="required">*</span></label>
+                <input type="text" id="newToolEndpoint" placeholder="http://localhost:3000">
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeRegisterModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="registerTool()">Register</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register A2A Agent Modal -->
+    <div class="modal" id="a2aRegisterModal">
+        <div class="modal-content">
+            <div class="modal-header">Register A2A Agent</div>
+
+            <div class="form-group">
+                <label>A2A Agent URL <span class="required">*</span></label>
+                <input type="text" id="newA2AUrl" placeholder="http://localhost:8000">
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeA2ARegisterModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="registerA2AAgent()">Register</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Callback Modal -->
+    <div class="modal" id="customCallbackModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">Add Custom Callback</div>
+
+            <div class="form-group">
+                <label>Callback Name <span class="required">*</span></label>
+                <input type="text" id="customCallbackName" placeholder="e.g., MyCustomCallback">
+                <div class="form-hint">Use PascalCase for the callback class name</div>
+            </div>
+
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="customCallbackDescription" placeholder="What does this callback do?" style="min-height: 60px;"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Implementation Type</label>
+                <div style="display: flex; gap: 12px; margin-top: 8px;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: #050505;">
+                        <input type="radio" name="customCallbackState" value="stateless" checked onchange="toggleLambdaCode()">
+                        <span>Stateless (Lambda)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: #050505;">
+                        <input type="radio" name="customCallbackState" value="stateful" onchange="toggleLambdaCode()">
+                        <span>Stateful (Custom Class)</span>
+                    </label>
+                </div>
+                <div class="form-hint">Stateless: Provide lambda code. Stateful: Empty class will be generated for you to implement</div>
+            </div>
+
+            <div class="form-group">
+                <label>CDI Scope <span class="required">*</span></label>
+                <select id="customCallbackScope" style="width: 100%;">
+                    <option value="ApplicationScoped">Application Scoped</option>
+                    <option value="RequestScoped">Request Scoped</option>
+                    <option value="SessionScoped">Session Scoped</option>
+                </select>
+                <div class="form-hint">Application: Singleton (default). Request: New instance per request. Session: Stateful per user session (requires Serializable)</div>
+            </div>
+
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #050505;">
+                    <input type="checkbox" id="customCallbackNeedsProducer" style="width: auto; cursor: pointer;">
+                    <span>Generate CDI Producer Class</span>
+                </label>
+                <div class="form-hint">Check this if your callback requires custom instantiation with @Produces method</div>
+            </div>
+
+            <div class="form-group" id="lambdaCodeGroup">
+                <label>Lambda Code <span class="required">*</span></label>
+                <textarea id="customCallbackLambda" placeholder="(input, context) -> {&#10;    // Your callback logic here&#10;    System.out.println(\"Callback executed: \" + input);&#10;    return input;&#10;}" style="min-height: 150px; font-family: 'SF Mono', monospace; font-size: 13px;"></textarea>
+                <div class="form-hint">Write Java lambda expression: (input, context) -> { ... return input; }</div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeCustomCallbackModal()">Cancel</button>
+                <button class="modal-btn primary" onclick="addCustomCallback()">Add Callback</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agent Details Modal -->
+    <div class="modal" id="agentDetailsModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header" id="agentModalHeader">Agent Details</div>
+            <div id="agentDetailsContent" style="max-height: 500px; overflow-y: auto;"></div>
+            
+            <!-- Chat Section -->
+            <div class="chat-section">
+                <div class="chat-header">
+                    <h3>Chat with Agent</h3>
+                    <button class="chat-toggle-btn" id="chatToggleBtn" onclick="toggleChat()">Open Chat</button>
+                </div>
+                <div class="chat-container" id="chatContainer">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-empty">Start a conversation with the agent...</div>
+                    </div>
+                    <div class="chat-input-area">
+                        <textarea class="chat-input" id="chatInput" placeholder="Type your message..."></textarea>
+                        <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="modal-btn secondary" id="backToDetailsBtn" onclick="toggleChat()" style="display: none;">← Back</button>
+                <button class="modal-btn secondary" style="background: #f02849; color: white;" id="deleteAgentBtn" onclick="deleteAgentFromModal()">Delete</button>
+                <button class="modal-btn primary" onclick="closeAgentDetailsModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        let attachedTools = [];
+        let attachedSubagents = [];
+        let allTools = [];
+        let allA2AAgents = [];
+        let allCallbacks = [];
+        let selectedBeforeCallbacks = [];
+        let selectedAfterCallbacks = [];
+        let selectedTransports = [];
+        let customCallbacks = [];
+        let currentCustomCallbackType = 'before';
+        let chatMessages = [];
+        let isChatOpen = false;
+
+        // Store original builder content on page load
+        let originalBuilderContent = null;
+        
+        // Load data on page load
+        window.onload = function() {
+            // Save the original content first
+            const builderSection = document.getElementById('builderSection');
+            if (builderSection && originalBuilderContent === null) {
+                originalBuilderContent = builderSection.innerHTML;
+                console.log('Original content saved');
+            }
+            
+            // Then load data
+            loadTools();
+            loadA2AAgents();
+            loadCallbacks();
+        };
+
+        // Navigation functions
+        function showSection(sectionName) {
+            // Update active menu item
+            document.querySelectorAll('.nav-menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            if (window.event && window.event.target) {
+                const clickedItem = window.event.target.closest('.nav-menu-item');
+                if (clickedItem) {
+                    clickedItem.classList.add('active');
+                }
+            }
+
+            const builderSection = document.getElementById('builderSection');
+            const sidebar = document.querySelector('.sidebar');
+            
+            if (sectionName === 'builder') {
+                // Restore original builder content
+                if (originalBuilderContent !== null) {
+                    builderSection.innerHTML = originalBuilderContent;
+                }
+                sidebar.style.display = 'flex';
+            } else {
+                sidebar.style.display = 'none';
+                
+                let content = '';
+                switch(sectionName) {
+                    case 'about':
+                        content = `
+                            <div class="form-content">
+                                <div class="form-header">
+                                    <h1>About Agent Studio</h1>
+                                    <p>Learn more about our platform and mission</p>
+                                </div>
+                                <div class="section">
+                                    <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #050505;">Our Mission</h2>
+                                    <p style="font-size: 15px; line-height: 1.6; color: #65676b; margin-bottom: 16px;">
+                                        Agent Studio is designed to empower developers to create, deploy, and manage AI agents with ease. 
+                                        Our platform provides a professional-grade interface for building production-ready agents using 
+                                        the Model Context Protocol (MCP) and Agent-to-Agent (A2A) communication.
+                                    </p>
+                                    <p style="font-size: 15px; line-height: 1.6; color: #65676b;">
+                                        We believe in making AI agent development accessible, efficient, and scalable for teams of all sizes.
+                                    </p>
+                                </div>
+                                <div class="section">
+                                    <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #050505;">Key Features</h2>
+                                    <ul style="list-style: none; padding: 0;">
+                                        <li style="padding: 12px; margin-bottom: 8px; background: #f5f6f7; border-radius: 6px; border-left: 3px solid #1877f2;">
+                                            <strong style="color: #050505;">Visual Agent Builder</strong><br>
+                                            <span style="color: #65676b; font-size: 14px;">Drag-and-drop interface for quick agent configuration</span>
+                                        </li>
+                                        <li style="padding: 12px; margin-bottom: 8px; background: #f5f6f7; border-radius: 6px; border-left: 3px solid #1877f2;">
+                                            <strong style="color: #050505;">MCP Tool Integration</strong><br>
+                                            <span style="color: #65676b; font-size: 14px;">Seamlessly connect with Model Context Protocol tools</span>
+                                        </li>
+                                        <li style="padding: 12px; margin-bottom: 8px; background: #f5f6f7; border-radius: 6px; border-left: 3px solid #1877f2;">
+                                            <strong style="color: #050505;">Agent-to-Agent Communication</strong><br>
+                                            <span style="color: #65676b; font-size: 14px;">Build complex multi-agent systems with sub-agents</span>
+                                        </li>
+                                        <li style="padding: 12px; margin-bottom: 8px; background: #f5f6f7; border-radius: 6px; border-left: 3px solid #1877f2;">
+                                            <strong style="color: #050505;">Code Generation</strong><br>
+                                            <span style="color: #65676b; font-size: 14px;">Automatically generate production-ready agent code</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                    case 'docs':
+                        content = `
+                            <div class="form-content">
+                                <div class="form-header">
+                                    <h1>Documentation</h1>
+                                    <p>Comprehensive guides and API references</p>
+                                </div>
+                                <div class="section">
+                                    <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #050505;">Getting Started</h2>
+                                    <p style="font-size: 15px; line-height: 1.6; color: #65676b; margin-bottom: 12px;">
+                                        Welcome to Agent Studio! Follow these steps to create your first agent:
+                                    </p>
+                                    <ol style="padding-left: 24px; color: #65676b; font-size: 15px; line-height: 1.8;">
+                                        <li>Navigate to the Home section from the sidebar</li>
+                                        <li>Fill in the basic information for your agent</li>
+                                        <li>Drag and drop MCP tools from the right sidebar</li>
+                                        <li>Configure callbacks and transport protocols</li>
+                                        <li>Click "Generate & Download Agent" to get your code</li>
+                                    </ol>
+                                </div>
+                                <div class="section">
+                                    <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #050505;">API Reference</h2>
+                                    <div style="background: #f5f6f7; padding: 16px; border-radius: 6px; font-family: 'SF Mono', monospace; font-size: 13px; margin-bottom: 12px;">
+                                        <div style="margin-bottom: 8px;"><strong>GET</strong> /api/tools</div>
+                                        <div style="color: #65676b;">List all registered MCP tools</div>
+                                    </div>
+                                    <div style="background: #f5f6f7; padding: 16px; border-radius: 6px; font-family: 'SF Mono', monospace; font-size: 13px; margin-bottom: 12px;">
+                                        <div style="margin-bottom: 8px;"><strong>POST</strong> /api/tools</div>
+                                        <div style="color: #65676b;">Register a new MCP tool</div>
+                                    </div>
+                                    <div style="background: #f5f6f7; padding: 16px; border-radius: 6px; font-family: 'SF Mono', monospace; font-size: 13px; margin-bottom: 12px;">
+                                        <div style="margin-bottom: 8px;"><strong>GET</strong> /api/a2a-agents</div>
+                                        <div style="color: #65676b;">List all registered A2A agents</div>
+                                    </div>
+                                    <div style="background: #f5f6f7; padding: 16px; border-radius: 6px; font-family: 'SF Mono', monospace; font-size: 13px;">
+                                        <div style="margin-bottom: 8px;"><strong>POST</strong> /api/agents/generate</div>
+                                        <div style="color: #65676b;">Generate and download agent code</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                    case 'settings':
+                        content = `
+                            <div class="form-content">
+                                <div class="form-header">
+                                    <h1>Settings</h1>
+                                    <p>Configure your preferences and account</p>
+                                </div>
+                                <div class="section">
+                                    <h2 style="font-size: 17px; font-weight: 600; margin-bottom: 16px; color: #050505;">Account Settings</h2>
+                                    <div class="form-group">
+                                        <label>Display Name</label>
+                                        <input type="text" placeholder="Guest User" value="Guest User" disabled style="background: #f5f6f7;">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Email</label>
+                                        <input type="email" placeholder="guest@agentstudio.com" disabled style="background: #f5f6f7;">
+                                    </div>
+                                </div>
+                                <div class="section">
+                                    <h2 style="font-size: 17px; font-weight: 600; margin-bottom: 16px; color: #050505;">Preferences</h2>
+                                    <div class="form-group">
+                                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                            <input type="checkbox" style="width: auto; cursor: pointer;">
+                                            <span>Enable notifications</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                            <input type="checkbox" checked style="width: auto; cursor: pointer;">
+                                            <span>Auto-save agent configurations</span>
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Theme</label>
+                                        <select style="background: #f5f6f7;">
+                                            <option>Light Mode</option>
+                                            <option>Dark Mode</option>
+                                            <option>System Default</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        break;
+                }
+                builderSection.innerHTML = content;
+            }
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to log out?')) {
+                showNotification('Logged out successfully', 'success');
+                // In a real application, this would clear session and redirect
+            }
+        }
+
+        async function loadTools() {
+            try {
+                const response = await fetch('/api/tools');
+                allTools = await response.json();
+                displayAllTools();
+            } catch (error) {
+                console.error('Failed to load tools:', error);
+            }
+        }
+
+        async function loadA2AAgents() {
+            try {
+                const response = await fetch('/api/a2a-agents');
+                allA2AAgents = await response.json();
+                displayAllTools();
+            } catch (error) {
+                console.error('Failed to load A2A agents:', error);
+            }
+        }
+
+        async function loadCallbacks() {
+            try {
+                const response = await fetch('/api/callbacks');
+                allCallbacks = await response.json();
+
+                const beforeCallbacks = allCallbacks.filter(cb => cb.type === 'BEFORE_AGENT');
+                const afterCallbacks = allCallbacks.filter(cb => cb.type === 'AFTER_AGENT');
+
+                renderCallbackOptions('before', beforeCallbacks);
+                renderCallbackOptions('after', afterCallbacks);
+            } catch (error) {
+                console.error('Failed to load callbacks:', error);
+            }
+        }
+
+        let currentAgentId = null;
+
+        async function showToolDetails(toolId) {
+            try {
+                // Fetch full tool details from API
+                const response = await fetch(`/api/tools/${toolId}`);
+                if (!response.ok) {
+                    showNotification('Failed to fetch tool details', 'error');
+                    return;
+                }
+                const tool = await response.json();
+
+                let html = '<div style="padding: 10px;">';
+                html += `<h3 style="margin-bottom: 15px; color: #050505;">${tool.name}</h3>`;
+                html += '<div style="background: #f5f6f7; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e4e6eb;">';
+                html += `<p style="margin-bottom: 8px; color: #050505;"><strong style="color: #65676b;">Tool ID:</strong> ${tool.tool_id}</p>`;
+                html += `<p style="margin-bottom: 8px; color: #050505;"><strong style="color: #65676b;">Endpoint:</strong> <code style="background: #ffffff; padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #050505; border: 1px solid #ccd0d5;">${tool.endpoint_url || 'N/A'}</code></p>`;
+                html += `<p style="margin-bottom: 8px; color: #050505;"><strong style="color: #65676b;">Status:</strong> <span style="color: ${tool.server_healthy ? '#42b72a' : '#f02849'}; font-weight: bold;">${tool.server_healthy ? 'Healthy' : 'Unhealthy'}</span></p>`;
+                html += '</div>';
+
+                if (tool.description) {
+                    html += '<div style="margin-bottom: 15px;">';
+                    html += `<p style="margin-bottom: 5px; color: #65676b;"><strong>Description:</strong></p>`;
+                    html += `<p style="color: #050505; padding: 10px; background: #f5f6f7; border-radius: 6px; border: 1px solid #e4e6eb;">${tool.description}</p>`;
+                    html += '</div>';
+                }
+
+                // Display MCP tools from this server
+                if (tool.mcp_tools && tool.mcp_tools.length > 0) {
+                    html += '<div style="margin-bottom: 15px;">';
+                    html += `<p style="margin-bottom: 8px; color: #65676b;"><strong>Available Tools (${tool.mcp_tools.length}):</strong></p>`;
+                    html += '<div style="max-height: 300px; overflow-y: auto;">';
+                    tool.mcp_tools.forEach((mcpTool, i) => {
+                        html += `<div style="background: #f5f6f7; padding: 12px; margin-bottom: 8px; border: 1px solid #e4e6eb; border-radius: 6px;">`;
+                        html += `<p style="font-weight: 600; margin-bottom: 4px; color: #050505;">${mcpTool.name || 'Tool ' + (i+1)}</p>`;
+                        if (mcpTool.description) html += `<p style="font-size: 13px; color: #65676b; margin-bottom: 6px;">${mcpTool.description}</p>`;
+                        
+                        // Display input schema if available
+                        if (mcpTool.inputSchema && mcpTool.inputSchema.properties) {
+                            const props = Object.keys(mcpTool.inputSchema.properties);
+                            if (props.length > 0) {
+                                html += `<p style="font-size: 12px; color: #8a8d91; margin-top: 4px;">Parameters: ${props.join(', ')}</p>`;
+                            }
+                        }
+                        html += '</div>';
+                    });
+                    html += '</div></div>';
+                } else if (tool.server_healthy) {
+                    html += '<div style="background: #fff3cd; padding: 12px; border-radius: 6px; border: 1px solid #ffc107; color: #856404; margin-bottom: 15px;">';
+                    html += '<p style="font-size: 13px;">No tools available from this MCP server</p>';
+                    html += '</div>';
+                }
+
+                html += '</div>';
+
+                document.getElementById('agentModalHeader').textContent = 'MCP Server Details';
+                document.getElementById('agentDetailsContent').innerHTML = html;
+                
+                // Hide chat section for tools
+                const chatSection = document.querySelector('.chat-section');
+                if (chatSection) chatSection.style.display = 'none';
+                
+                // Hide delete button for tools
+                const deleteBtn = document.getElementById('deleteAgentBtn');
+                if (deleteBtn) deleteBtn.style.display = 'none';
+                
+                document.getElementById('agentDetailsModal').classList.add('active');
+            } catch (error) {
+                console.error('Failed to load tool details:', error);
+                showNotification('Failed to load tool details', 'error');
+            }
+        }
+
+        async function showAgentDetails(agentId) {
+            currentAgentId = agentId;
+            try {
+                const response = await fetch(`/api/a2a-agents/${agentId}`);
+                const agent = await response.json();
+
+                let html = '<div style="padding: 10px;">';
+                html += `<h3 style="margin-bottom: 15px; color: #050505;">${agent.name || 'Unknown Agent'}</h3>`;
+                html += '<div style="background: #f5f6f7; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e4e6eb;">';
+                html += `<p style="margin-bottom: 8px; color: #050505;"><strong style="color: #65676b;">ID:</strong> ${agent.id}</p>`;
+                html += `<p style="margin-bottom: 8px; color: #050505;"><strong style="color: #65676b;">URL:</strong> ${agent.url}</p>`;
+                html += `<p style="margin-bottom: 8px; color: #050505;"><strong style="color: #65676b;">Version:</strong> ${agent.version || 'N/A'}</p>`;
+                html += `<p style="margin-bottom: 8px; color: #050505;"><strong style="color: #65676b;">Protocol Version:</strong> ${agent.protocolVersion || agent.protocol_version || 'N/A'}</p>`;
+                html += `<p style="margin-bottom: 8px; color: #050505;"><strong style="color: #65676b;">Status:</strong> <span style="color: ${agent.status === 'connected' ? '#42b72a' : '#f02849'}; font-weight: bold;">${agent.status || 'Unknown'}</span></p>`;
+                html += '</div>';
+
+                if (agent.description) {
+                    html += '<div style="margin-bottom: 15px;">';
+                    html += `<p style="margin-bottom: 5px; color: #65676b;"><strong>Description:</strong></p>`;
+                    html += `<p style="color: #050505; padding: 10px; background: #f5f6f7; border-radius: 6px; border: 1px solid #e4e6eb;">${agent.description}</p>`;
+                    html += '</div>';
+                }
+
+                if (agent.capabilities) {
+                    html += '<div style="margin-bottom: 15px;">';
+                    html += '<p style="margin-bottom: 8px; color: #65676b;"><strong>Capabilities:</strong></p>';
+                    html += '<ul style="padding-left: 20px; color: #050505;">';
+                    html += `<li>Streaming: ${agent.capabilities.streaming ? 'Yes' : 'No'}</li>`;
+                    html += `<li>Push Notifications: ${agent.capabilities.pushNotifications || agent.capabilities.push_notifications ? 'Yes' : 'No'}</li>`;
+                    html += `<li>State Transition History: ${agent.capabilities.stateTransitionHistory || agent.capabilities.state_transition_history ? 'Yes' : 'No'}</li>`;
+                    html += '</ul></div>';
+                }
+
+                if (agent.skills && agent.skills.length > 0) {
+                    html += '<div style="margin-bottom: 15px;">';
+                    html += `<p style="margin-bottom: 8px; color: #65676b;"><strong>Skills (${agent.skills.length}):</strong></p>`;
+                    html += '<div style="max-height: 200px; overflow-y: auto;">';
+                    agent.skills.forEach((skill, i) => {
+                        html += `<div style="background: #f5f6f7; padding: 12px; margin-bottom: 8px; border: 1px solid #e4e6eb; border-radius: 6px;">`;
+                        html += `<p style="font-weight: 600; margin-bottom: 4px; color: #050505;">${skill.name || 'Skill ' + (i+1)}</p>`;
+                        if (skill.description) html += `<p style="font-size: 13px; color: #65676b; margin-bottom: 4px;">${skill.description}</p>`;
+                        if (skill.tags && skill.tags.length > 0) {
+                            html += '<p style="font-size: 12px; color: #8a8d91;">Tags: ' + skill.tags.join(', ') + '</p>';
+                        }
+                        html += '</div>';
+                    });
+                    html += '</div></div>';
+                }
+
+                if (agent.inputModes || agent.input_modes) {
+                    const modes = agent.inputModes || agent.input_modes;
+                    html += `<p style="margin-bottom: 8px; color: #050505;"><strong style="color: #65676b;">Input Modes:</strong> ${modes.join(', ')}</p>`;
+                }
+                if (agent.outputModes || agent.output_modes) {
+                    const modes = agent.outputModes || agent.output_modes;
+                    html += `<p style="margin-bottom: 8px; color: #050505;"><strong style="color: #65676b;">Output Modes:</strong> ${modes.join(', ')}</p>`;
+                }
+
+                // Transport Protocols
+                if (agent.preferredTransport || agent.additionalInterfaces || agent.supportedTransports) {
+                    html += '<div style="margin-top: 15px; padding: 15px; background: #f5f6f7; border-radius: 8px; border: 1px solid #e4e6eb;">';
+                    html += '<p style="margin-bottom: 10px; font-weight: 600; color: #050505;">Transport Protocols</p>';
+
+                    if (agent.preferredTransport) {
+                        html += `<p style="margin-bottom: 6px; color: #050505;"><strong style="color: #65676b;">Preferred:</strong> <span style="color: #1877f2; font-weight: 600;">${agent.preferredTransport}</span></p>`;
+                    }
+
+                    if (agent.additionalInterfaces && agent.additionalInterfaces.length > 0) {
+                        html += '<p style="margin-bottom: 6px; margin-top: 10px; color: #65676b;"><strong>Additional Interfaces:</strong></p>';
+                        html += '<ul style="padding-left: 20px; margin-top: 5px;">';
+                        agent.additionalInterfaces.forEach(iface => {
+                            html += `<li style="margin-bottom: 4px; color: #050505;">`;
+                            html += `<strong>${iface.protocol}:</strong> <code style="background: #ffffff; padding: 2px 6px; border-radius: 4px; font-size: 12px; color: #050505; border: 1px solid #ccd0d5;">${iface.url}</code>`;
+                            html += '</li>';
+                        });
+                        html += '</ul>';
+                    }
+
+                    if (agent.supportedTransports && agent.supportedTransports.length > 0) {
+                        html += `<p style="margin-top: 10px; color: #050505;"><strong style="color: #65676b;">Supported:</strong> ${agent.supportedTransports.join(', ')}</p>`;
+                    }
+
+                    html += '</div>';
+                }
+
+                html += '</div>';
+
+                document.getElementById('agentDetailsContent').innerHTML = html;
+                document.getElementById('agentDetailsModal').classList.add('active');
+            } catch (error) {
+                console.error('Failed to load agent details:', error);
+                showNotification('Failed to load agent details', 'error');
+            }
+        }
+
+        function closeAgentDetailsModal() {
+            document.getElementById('agentDetailsModal').classList.remove('active');
+            currentAgentId = null;
+            
+            // Reset all chat UI state
+            isChatOpen = false;
+            chatMessages = [];
+            
+            // Reset chat container
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.classList.remove('open');
+            
+            // Reset toggle button
+            const toggleBtn = document.getElementById('chatToggleBtn');
+            toggleBtn.textContent = 'Open Chat';
+            toggleBtn.classList.remove('active');
+            
+            // Reset modal header
+            const modalHeader = document.getElementById('agentModalHeader');
+            modalHeader.textContent = 'Agent Details';
+            
+            // Show agent details and chat header
+            document.getElementById('agentDetailsContent').style.display = 'block';
+            const chatHeader = document.querySelector('.chat-section .chat-header');
+            if (chatHeader) chatHeader.style.display = 'flex';
+            
+            // Restore chat section and button visibility
+            const chatSection = document.querySelector('.chat-section');
+            if (chatSection) chatSection.style.display = 'block';
+            
+            const backBtn = document.getElementById('backToDetailsBtn');
+            const deleteBtn = document.getElementById('deleteAgentBtn');
+            if (backBtn) backBtn.style.display = 'none';
+            if (deleteBtn) deleteBtn.style.display = 'block';
+        }
+
+        // Chat Functions
+        function toggleChat() {
+            const chatContainer = document.getElementById('chatContainer');
+            const toggleBtn = document.getElementById('chatToggleBtn');
+            const agentDetails = document.getElementById('agentDetailsContent');
+            const modalHeader = document.getElementById('agentModalHeader');
+            const chatHeader = document.querySelector('.chat-section .chat-header');
+            const backBtn = document.getElementById('backToDetailsBtn');
+            const deleteBtn = document.getElementById('deleteAgentBtn');
+            
+            isChatOpen = !isChatOpen;
+            
+            if (isChatOpen) {
+                chatContainer.classList.add('open');
+                toggleBtn.textContent = 'Back to Details';
+                toggleBtn.classList.add('active');
+                // Hide agent details and chat section header
+                agentDetails.style.display = 'none';
+                chatHeader.style.display = 'none';
+                // Show back button, hide delete button
+                backBtn.style.display = 'block';
+                deleteBtn.style.display = 'none';
+                // Update header
+                modalHeader.textContent = '💬 Chat with Agent';
+                // Clear the empty state if it exists
+                if (chatMessages.length === 0) {
+                    const messagesContainer = document.getElementById('chatMessages');
+                    messagesContainer.innerHTML = '<div class="chat-empty">Start a conversation with the agent...</div>';
+                }
+            } else {
+                chatContainer.classList.remove('open');
+                toggleBtn.textContent = 'Open Chat';
+                toggleBtn.classList.remove('active');
+                // Show agent details and chat section header
+                agentDetails.style.display = 'block';
+                chatHeader.style.display = 'flex';
+                // Hide back button, show delete button
+                backBtn.style.display = 'none';
+                deleteBtn.style.display = 'block';
+                // Restore header
+                modalHeader.textContent = 'Agent Details';
+            }
+        }
+
+        function addChatMessage(role, content, timestamp = null) {
+            const message = {
+                role: role, // 'user', 'agent', or 'system'
+                content: content,
+                timestamp: timestamp || new Date().toLocaleTimeString()
+            };
+            
+            chatMessages.push(message);
+            renderChatMessages();
+        }
+
+        function renderChatMessages() {
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            if (chatMessages.length === 0) {
+                messagesContainer.innerHTML = '<div class="chat-empty">Start a conversation with the agent...</div>';
+                return;
+            }
+            
+            messagesContainer.innerHTML = chatMessages.map(msg => {
+                if (msg.role === 'loading') {
+                    return `
+                        <div class="chat-loading" id="chat-loading-indicator">
+                            <div class="chat-loading-spinner"></div>
+                            <span>Agent is thinking...</span>
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="chat-message ${msg.role}">
+                        ${msg.role === 'agent' || msg.role === 'user' ? `<div class="chat-message-header">${msg.role === 'user' ? 'You' : 'Agent'}</div>` : ''}
+                        <div>${msg.content}</div>
+                        <div class="chat-message-time">${msg.timestamp}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Auto-scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('chatSendBtn');
+            const message = input.value.trim();
+            
+            if (!message || !currentAgentId) {
+                return;
+            }
+            
+            // Add user message
+            addChatMessage('user', message);
+            input.value = '';
+            
+            // Disable input while sending
+            input.disabled = true;
+            sendBtn.disabled = true;
+            
+            // Add loading indicator
+            addChatMessage('loading', '');
+            
+            try {
+                const response = await fetch(`/api/a2a-agents/${currentAgentId}/message`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                // Remove loading indicator
+                chatMessages = chatMessages.filter(msg => msg.role !== 'loading');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const agentResponse = data.response || 'No response from agent';
+                    const executionTime = data.details?.execution_time;
+                    
+                    // Add agent response
+                    addChatMessage('agent', agentResponse);
+                    
+                    if (executionTime) {
+                        console.log(`Response received in ${executionTime}ms`);
+                    }
+                } else {
+                    const error = await response.json();
+                    addChatMessage('system', `Error: ${error.error || 'Failed to send message'}`);
+                }
+            } catch (error) {
+                // Remove loading indicator
+                chatMessages = chatMessages.filter(msg => msg.role !== 'loading');
+                renderChatMessages();
+                
+                addChatMessage('system', `Error: ${error.message}`);
+                console.error('Failed to send message:', error);
+            } finally {
+                // Re-enable input
+                input.disabled = false;
+                sendBtn.disabled = false;
+                input.focus();
+            }
+        }
+
+        // Allow sending message with Enter key (Shift+Enter for new line)
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatInput = document.getElementById('chatInput');
+            if (chatInput) {
+                chatInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendChatMessage();
+                    }
+                });
+            }
+        });
+
+        async function deleteAgentFromModal() {
+            if (!currentAgentId) return;
+            
+            if (!confirm('Are you sure you want to delete this agent? This will disconnect the agent from the registry.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/a2a-agents/${currentAgentId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showNotification('Agent deleted successfully!', 'success');
+                    closeAgentDetailsModal();
+                    // Remove from local array
+                    allA2AAgents = allA2AAgents.filter(a => a.id !== currentAgentId);
+                    // Remove from attached subagents if present
+                    attachedSubagents = attachedSubagents.filter(a => a.id !== currentAgentId);
+                    // Refresh displays
+                    displayAllTools();
+                    renderAttachedSubagents();
+                } else {
+                    const error = await response.json();
+                    showNotification('Failed to delete: ' + error.error, 'error');
+                }
+            } catch (error) {
+                showNotification('Error: ' + error.message, 'error');
+            }
+        }
+
+        function renderCallbackOptions(type, callbacks) {
+            const dropdown = document.getElementById(`${type}CallbacksDropdown`);
+
+            if (callbacks.length === 0) {
+                dropdown.innerHTML = '<div class="callback-empty">No callbacks available</div>';
+                return;
+            }
+
+            dropdown.innerHTML = callbacks.map(cb => `
+                <div class="callback-option" onclick="toggleCallback('${type}', '${cb.fqdn}', '${cb.name.replace(/'/g, "\\'")}')"
+                     data-fqdn="${cb.fqdn}">
+                    <div class="callback-option-name">${cb.name}</div>
+                    <div class="callback-option-desc">${cb.description || 'No description'}</div>
+                </div>
+            `).join('');
+        }
+
+        function toggleCallbackDropdown(type) {
+            let dropdown, bar;
+
+            if (type === 'transport') {
+                dropdown = document.getElementById('transportDropdown');
+                bar = dropdown.previousElementSibling;
+                // Close callback dropdowns
+                ['before', 'after'].forEach(t => {
+                    const d = document.getElementById(`${t}CallbacksDropdown`);
+                    if (d) {
+                        d.classList.remove('open');
+                        d.previousElementSibling.classList.remove('open');
+                    }
+                });
+            } else {
+                dropdown = document.getElementById(`${type}CallbacksDropdown`);
+                bar = dropdown.previousElementSibling;
+
+                // Close other dropdown
+                const otherType = type === 'before' ? 'after' : 'before';
+                document.getElementById(`${otherType}CallbacksDropdown`).classList.remove('open');
+                document.querySelector(`#${otherType}CallbacksDropdown`).previousElementSibling.classList.remove('open');
+
+                // Close transport dropdown
+                const transportDropdown = document.getElementById('transportDropdown');
+                if (transportDropdown) {
+                    transportDropdown.classList.remove('open');
+                    transportDropdown.previousElementSibling.classList.remove('open');
+                }
+            }
+
+            dropdown.classList.toggle('open');
+            bar.classList.toggle('open');
+        }
+
+        function toggleCallback(type, fqdn, name) {
+            const selectedList = type === 'before' ? selectedBeforeCallbacks : selectedAfterCallbacks;
+            const index = selectedList.findIndex(cb => cb.fqdn === fqdn);
+
+            if (index > -1) {
+                selectedList.splice(index, 1);
+            } else {
+                selectedList.push({ fqdn, name });
+            }
+
+            if (type === 'before') {
+                selectedBeforeCallbacks = selectedList;
+            } else {
+                selectedAfterCallbacks = selectedList;
+            }
+
+            renderSelectedCallbacks(type);
+            updateCallbackOptionStyles(type);
+        }
+
+        function renderSelectedCallbacks(type) {
+            const container = document.getElementById(`${type}CallbacksSelected`);
+            const selectedList = type === 'before' ? selectedBeforeCallbacks : selectedAfterCallbacks;
+
+            if (selectedList.length === 0) {
+                container.innerHTML = '<span class="callback-placeholder">Select callbacks...</span>';
+                return;
+            }
+
+            container.innerHTML = selectedList.map(cb => `
+                <div class="callback-tag">
+                    <span>${cb.name}</span>
+                    <button class="callback-tag-remove" onclick="event.stopPropagation(); removeCallback('${type}', '${cb.fqdn}');">×</button>
+                </div>
+            `).join('');
+        }
+
+        function removeCallback(type, fqdn) {
+            if (type === 'before') {
+                selectedBeforeCallbacks = selectedBeforeCallbacks.filter(cb => cb.fqdn !== fqdn);
+            } else {
+                selectedAfterCallbacks = selectedAfterCallbacks.filter(cb => cb.fqdn !== fqdn);
+            }
+
+            renderSelectedCallbacks(type);
+            updateCallbackOptionStyles(type);
+        }
+
+        function updateCallbackOptionStyles(type) {
+            const dropdown = document.getElementById(`${type}CallbacksDropdown`);
+            const selectedList = type === 'before' ? selectedBeforeCallbacks : selectedAfterCallbacks;
+            const selectedFqdns = selectedList.map(cb => cb.fqdn);
+
+            dropdown.querySelectorAll('.callback-option').forEach(option => {
+                const fqdn = option.getAttribute('data-fqdn');
+                if (selectedFqdns.includes(fqdn)) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        }
+
+        // Transport protocol selection
+        function toggleTransport(value, name) {
+            const index = selectedTransports.findIndex(t => t.value === value);
+
+            if (index > -1) {
+                selectedTransports.splice(index, 1);
+            } else {
+                selectedTransports.push({ value, name });
+            }
+
+            renderSelectedTransports();
+            updateTransportOptionStyles();
+        }
+
+        function renderSelectedTransports() {
+            const container = document.getElementById('transportSelected');
+
+            if (selectedTransports.length === 0) {
+                container.innerHTML = '<span class="callback-placeholder">Select transport protocols...</span>';
+                return;
+            }
+
+            container.innerHTML = selectedTransports.map(t => `
+                <div class="callback-tag">
+                    <span>${t.name}</span>
+                    <button class="callback-tag-remove" onclick="event.stopPropagation(); removeTransport('${t.value}');">×</button>
+                </div>
+            `).join('');
+        }
+
+        function removeTransport(value) {
+            selectedTransports = selectedTransports.filter(t => t.value !== value);
+            renderSelectedTransports();
+            updateTransportOptionStyles();
+        }
+
+        function updateTransportOptionStyles() {
+            const dropdown = document.getElementById('transportDropdown');
+            const selectedValues = selectedTransports.map(t => t.value);
+
+            dropdown.querySelectorAll('.callback-option').forEach(option => {
+                const value = option.getAttribute('data-value');
+                if (selectedValues.includes(value)) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.callback-selector')) {
+                document.querySelectorAll('.callback-dropdown').forEach(dropdown => {
+                    dropdown.classList.remove('open');
+                });
+                document.querySelectorAll('.callback-bar').forEach(bar => {
+                    bar.classList.remove('open');
+                });
+            }
+        });
+
+        function displayAllTools() {
+            const container = document.getElementById('toolsList');
+
+            if (allTools.length === 0 && allA2AAgents.length === 0) {
+                container.innerHTML = '<div class="empty-state">No tools or agents registered yet</div>';
+                return;
+            }
+
+            let html = '';
+
+            if (allTools.length > 0) {
+                html += '<div class="tool-category">MCP Tools</div>';
+                html += allTools.map(tool => `
+                    <div class="tool-item" draggable="true" ondragstart="dragStart(event, '${tool.tool_id}', 'mcp')" onclick="showToolDetails('${tool.tool_id}')" style="cursor: pointer;">
+                        <div class="tool-name">
+                            <span class="tool-status ${tool.server_healthy ? 'healthy' : 'unhealthy'}"></span>
+                            ${tool.name}
+                        </div>
+                        <div class="tool-endpoint">${tool.endpoint_url || 'No endpoint'}</div>
+                    </div>
+                `).join('');
+            }
+
+            if (allA2AAgents.length > 0) {
+                html += '<div class="tool-category">A2A Agents</div>';
+                html += allA2AAgents.map(agent => `
+                    <div class="tool-item a2a" draggable="true" ondragstart="dragStart(event, '${agent.id}', 'a2a')">
+                        <div class="tool-item-header">
+                            <div style="flex: 1; cursor: pointer;" onclick="showAgentDetails('${agent.id}')">
+                                <div class="tool-name">
+                                    <span class="tool-status ${agent.status === 'connected' ? 'healthy' : 'unhealthy'}"></span>
+                                    ${agent.name}
+                                </div>
+                                <div class="tool-endpoint">${agent.skills ? agent.skills.length : 0} skills • ${agent.url}</div>
+                            </div>
+                            <button class="tool-item-delete" onclick="event.stopPropagation(); deleteAgent('${agent.id}')" title="Delete agent">×</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            container.innerHTML = html;
+        }
+
+        function filterTools() {
+            const query = document.getElementById('toolSearch').value.toLowerCase();
+            const items = document.querySelectorAll('.tool-item');
+
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(query) ? 'block' : 'none';
+            });
+        }
+
+        // Drag and Drop
+        function dragStart(event, id, type) {
+            event.dataTransfer.setData('id', id);
+            event.dataTransfer.setData('type', type);
+            event.target.classList.add('dragging');
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add('drag-over');
+        }
+
+        function dragLeave(event, zone) {
+            document.getElementById(`${zone}Dropzone`).classList.remove('drag-over');
+        }
+
+        function dropTool(event) {
+            event.preventDefault();
+            document.getElementById('toolsDropzone').classList.remove('drag-over');
+
+            const id = event.dataTransfer.getData('id');
+            const type = event.dataTransfer.getData('type');
+
+            if (type !== 'mcp') {
+                showNotification('Only MCP tools can be added here', 'error');
+                return;
+            }
+
+            const tool = allTools.find(t => t.tool_id === id);
+            if (tool && !attachedTools.find(t => t.tool_id === id)) {
+                attachedTools.push(tool);
+                renderAttachedTools();
+                showNotification(`Added ${tool.name}`, 'success');
+            }
+
+            document.querySelectorAll('.tool-item.dragging').forEach(el => el.classList.remove('dragging'));
+        }
+
+        function dropSubagent(event) {
+            event.preventDefault();
+            document.getElementById('subagentsDropzone').classList.remove('drag-over');
+
+            const id = event.dataTransfer.getData('id');
+            const type = event.dataTransfer.getData('type');
+
+            if (type !== 'a2a') {
+                showNotification('Only A2A agents can be added here', 'error');
+                return;
+            }
+
+            const agent = allA2AAgents.find(a => a.id === id);
+            if (agent && !attachedSubagents.find(a => a.id === id)) {
+                attachedSubagents.push(agent);
+                renderAttachedSubagents();
+                showNotification(`Added ${agent.name}`, 'success');
+            }
+
+            document.querySelectorAll('.tool-item.dragging').forEach(el => el.classList.remove('dragging'));
+        }
+
+        function renderAttachedTools() {
+            const container = document.getElementById('attachedTools');
+            const placeholder = document.getElementById('toolsPlaceholder');
+
+            if (attachedTools.length === 0) {
+                placeholder.style.display = 'block';
+                container.innerHTML = '';
+                return;
+            }
+
+            placeholder.style.display = 'none';
+            container.innerHTML = attachedTools.map(tool => `
+                <div class="attached-item">
+                    <div class="attached-item-info">
+                        <h4>${tool.name}</h4>
+                        <p>${tool.endpoint_url}</p>
+                    </div>
+                    <button class="remove-item" onclick="removeTool('${tool.tool_id}')">×</button>
+                </div>
+            `).join('');
+        }
+
+        function renderAttachedSubagents() {
+            const container = document.getElementById('attachedSubagents');
+            const placeholder = document.getElementById('subagentsPlaceholder');
+
+            if (attachedSubagents.length === 0) {
+                placeholder.style.display = 'block';
+                container.innerHTML = '';
+                return;
+            }
+
+            placeholder.style.display = 'none';
+            container.innerHTML = attachedSubagents.map(agent => `
+                <div class="attached-item subagent">
+                    <div class="attached-item-info">
+                        <h4>${agent.name}</h4>
+                        <p>${agent.url} • ${agent.skills ? agent.skills.length : 0} skills</p>
+                    </div>
+                    <button class="remove-item" onclick="removeSubagent('${agent.id}')">×</button>
+                </div>
+            `).join('');
+        }
+
+        function removeTool(id) {
+            attachedTools = attachedTools.filter(t => t.tool_id !== id);
+            renderAttachedTools();
+            showNotification('Tool removed', 'success');
+        }
+
+        function removeSubagent(id) {
+            attachedSubagents = attachedSubagents.filter(a => a.id !== id);
+            renderAttachedSubagents();
+            showNotification('Sub-agent removed', 'success');
+        }
+
+        // Modals
+        function openRegisterModal() {
+            document.getElementById('registerModal').classList.add('active');
+        }
+
+        function closeRegisterModal() {
+            document.getElementById('registerModal').classList.remove('active');
+        }
+
+        function openA2ARegisterModal() {
+            document.getElementById('a2aRegisterModal').classList.add('active');
+        }
+
+        function closeA2ARegisterModal() {
+            document.getElementById('a2aRegisterModal').classList.remove('active');
+        }
+
+        // Custom Callback Functions
+        function openCustomCallbackModal(type) {
+            currentCustomCallbackType = type;
+            document.getElementById('customCallbackModal').classList.add('active');
+            document.getElementById('customCallbackName').value = '';
+            document.getElementById('customCallbackDescription').value = '';
+            document.getElementById('customCallbackLambda').value = '';
+            document.getElementById('customCallbackScope').value = 'ApplicationScoped';
+            document.getElementById('customCallbackNeedsProducer').checked = false;
+            document.querySelector('input[name="customCallbackState"][value="stateless"]').checked = true;
+            toggleLambdaCode();
+        }
+
+        function closeCustomCallbackModal() {
+            document.getElementById('customCallbackModal').classList.remove('active');
+        }
+
+        function toggleLambdaCode() {
+            const isStateless = document.querySelector('input[name="customCallbackState"]:checked').value === 'stateless';
+            const lambdaGroup = document.getElementById('lambdaCodeGroup');
+            lambdaGroup.style.display = isStateless ? 'block' : 'none';
+        }
+
+        function addCustomCallback() {
+            const name = document.getElementById('customCallbackName').value.trim();
+            const description = document.getElementById('customCallbackDescription').value.trim();
+            const state = document.querySelector('input[name="customCallbackState"]:checked').value;
+            const lambda = document.getElementById('customCallbackLambda').value.trim();
+            const scope = document.getElementById('customCallbackScope').value;
+            const needsProducer = document.getElementById('customCallbackNeedsProducer').checked;
+            
+            // Auto-determine category based on context (before/after)
+            const category = currentCustomCallbackType === 'before' ? 'BeforeAgentCallback' : 'AfterAgentCallback';
+
+            if (!name) {
+                showNotification('Callback name is required', 'error');
+                return;
+            }
+
+            if (state === 'stateless' && !lambda) {
+                showNotification('Lambda code is required for stateless callbacks', 'error');
+                return;
+            }
+
+            const callback = {
+                id: 'custom_' + Date.now(),
+                name: name,
+                description: description || '',
+                type: currentCustomCallbackType,
+                category: category,
+                state: state,
+                lambda: lambda || null,
+                scope: scope,
+                needsProducer: needsProducer
+            };
+
+            customCallbacks.push(callback);
+            renderCustomCallbacks();
+            closeCustomCallbackModal();
+            showNotification(`Custom callback "${name}" added successfully!`, 'success');
+        }
+
+        function renderCustomCallbacks() {
+            const container = document.getElementById('customCallbacksList');
+            const display = document.getElementById('customCallbacksDisplay');
+
+            if (customCallbacks.length === 0) {
+                display.style.display = 'none';
+                return;
+            }
+
+            display.style.display = 'block';
+
+            container.innerHTML = customCallbacks.map(cb => `
+                <div class="attached-item" style="border-left-color: ${cb.type === 'before' ? '#1877f2' : '#42b72a'};">
+                    <div class="attached-item-info">
+                        <h4>${cb.name} <span style="font-size: 11px; color: #8a8d91; font-weight: 400;">[${cb.category}]</span></h4>
+                        <p>${cb.state === 'stateless' ? 'Stateless (Lambda)' : 'Stateful (Custom Class)'}</p>
+                        ${cb.description ? '<p style="font-size: 11px; margin-top: 4px;">' + cb.description + '</p>' : ''}
+                    </div>
+                    <button class="remove-item" onclick="removeCustomCallback('${cb.id}')">×</button>
+                </div>
+            `).join('');
+        }
+
+        function removeCustomCallback(id) {
+            customCallbacks = customCallbacks.filter(cb => cb.id !== id);
+            renderCustomCallbacks();
+            showNotification('Custom callback removed', 'success');
+        }
+
+        async function registerTool() {
+            const name = document.getElementById('newToolName').value.trim();
+            const description = document.getElementById('newToolDescription').value.trim();
+            const endpoint = document.getElementById('newToolEndpoint').value.trim();
+
+            if (!name || !endpoint) {
+                showNotification('Name and endpoint are required', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/tools', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, description: description || null, endpoint_url: endpoint })
+                });
+
+                if (response.ok) {
+                    showNotification('Tool registered successfully!', 'success');
+                    closeRegisterModal();
+                    loadTools();
+                } else {
+                    const error = await response.json();
+                    showNotification('Failed: ' + error.error, 'error');
+                }
+            } catch (error) {
+                showNotification('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function registerA2AAgent() {
+            const url = document.getElementById('newA2AUrl').value.trim();
+
+            if (!url) {
+                showNotification('URL is required', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/a2a-agents', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+
+                if (response.ok) {
+                    showNotification('A2A Agent registered successfully!', 'success');
+                    closeA2ARegisterModal();
+                    loadA2AAgents();
+                } else {
+                    const error = await response.json();
+                    showNotification('Failed: ' + error.error, 'error');
+                }
+            } catch (error) {
+                showNotification('Error: ' + error.message, 'error');
+            }
+        }
+
+        async function generateAgent() {
+            const name = document.getElementById('agentName').value.trim();
+
+            if (!name) {
+                showNotification('Agent name is required', 'error');
+                return;
+            }
+
+            const request = {
+                agentName: name,
+                description: document.getElementById('agentDescription').value.trim() || null,
+                instructions: document.getElementById('agentInstructions').value.trim() || null,
+                packageName: document.getElementById('agentPackage').value.trim() || 'com.example.agent',
+                toolIds: attachedTools.map(t => t.tool_id),
+                subagentIds: attachedSubagents.map(a => a.id),
+                googleApiKey: document.getElementById('googleApiKey').value.trim() || null,
+                serverPort: parseInt(document.getElementById('serverPort').value) || 8000,
+                beforeAgentCallbacks: selectedBeforeCallbacks.map(cb => cb.fqdn),
+                afterAgentCallbacks: selectedAfterCallbacks.map(cb => cb.fqdn),
+                transportProtocols: selectedTransports.map(t => t.value),
+                customCallbacks: customCallbacks.map(cb => ({
+                    name: cb.name,
+                    description: cb.description,
+                    type: cb.type,
+                    category: cb.category,
+                    state: cb.state,
+                    lambda: cb.lambda,
+                    scope: cb.scope,
+                    needsProducer: cb.needsProducer
+                }))
+            };
+
+            try {
+                showNotification('Generating agent code...', 'success');
+
+                const response = await fetch('/api/agents/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(request)
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const filename = name.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-agent.zip';
+
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+
+                    showNotification('Agent downloaded successfully!', 'success');
+                } else {
+                    const error = await response.json();
+                    showNotification('Failed to generate: ' + error.error, 'error');
+                }
+            } catch (error) {
+                showNotification('Error: ' + error.message, 'error');
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('agentName').value = '';
+            document.getElementById('agentDescription').value = '';
+            document.getElementById('agentInstructions').value = '';
+            document.getElementById('googleApiKey').value = '';
+            attachedTools = [];
+            attachedSubagents = [];
+            selectedBeforeCallbacks = [];
+            selectedAfterCallbacks = [];
+            selectedTransports = [];
+            customCallbacks = [];
+            renderAttachedTools();
+            renderAttachedSubagents();
+            renderSelectedCallbacks('before');
+            renderSelectedCallbacks('after');
+            renderSelectedTransports();
+            renderCustomCallbacks();
+            showNotification('Form cleared', 'success');
+        }
+
+        async function deleteAgent(agentId) {
+            if (!confirm('Are you sure you want to delete this agent? This will disconnect the agent from the registry.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/a2a-agents/${agentId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showNotification('Agent deleted successfully!', 'success');
+                    // Remove from local array
+                    allA2AAgents = allA2AAgents.filter(a => a.id !== agentId);
+                    // Remove from attached subagents if present
+                    attachedSubagents = attachedSubagents.filter(a => a.id !== agentId);
+                    // Refresh displays
+                    displayAllTools();
+                    renderAttachedSubagents();
+                } else {
+                    const error = await response.json();
+                    showNotification('Failed to delete: ' + error.error, 'error');
+                }
+            } catch (error) {
+                showNotification('Error: ' + error.message, 'error');
+            }
+        }
+
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
