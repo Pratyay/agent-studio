@@ -678,11 +678,15 @@ public class AgentCodeGenerator {
         }
         
         // Chat method for executor
-        code.append("    public static String chat(String message) {\n");
+        code.append("    public String chat(String message) {\n");
         code.append("        try {\n");
         code.append("            System.out.println(\"[Chat] Received message: \" + message);\n");
+        code.append("            // Ensure agent is initialized\n");
+        code.append("            if (!initialized || ROOT_AGENT == null) {\n");
+        code.append("                throw new IllegalStateException(\"Agent not initialized\");\n");
+        code.append("            }\n");
         code.append("            // Create runner and session\n");
-        code.append("            InMemoryRunner runner = new InMemoryRunner(getAgent());\n");
+        code.append("            InMemoryRunner runner = new InMemoryRunner(ROOT_AGENT);\n");
         code.append("            Session session = runner\n");
         code.append("                .sessionService()\n");
         code.append("                .createSession(runner.appName(), \"user\")\n");
@@ -1618,12 +1622,19 @@ public class AgentCodeGenerator {
         code.append("@ApplicationScoped\n");
         code.append("public class ").append(className).append(" {\n\n");
         
+        code.append("    @Inject\n");
+        code.append("    ").append(agentClassName).append(" agent;\n\n");
+        
         code.append("    @Produces\n");
         code.append("    public AgentExecutor agentExecutor() {\n");
-        code.append("        return new ").append(agentClassName).append("Executor();\n");
+        code.append("        return new ").append(agentClassName).append("Executor(agent);\n");
         code.append("    }\n\n");
         
         code.append("    private static class ").append(agentClassName).append("Executor implements AgentExecutor {\n\n");
+        code.append("        private final ").append(agentClassName).append(" agent;\n\n");
+        code.append("        public ").append(agentClassName).append("Executor(").append(agentClassName).append(" agent) {\n");
+        code.append("            this.agent = agent;\n");
+        code.append("        }\n\n");
         
         code.append("        @Override\n");
         code.append("        public void execute(RequestContext context, EventQueue eventQueue) throws JSONRPCError {\n");
@@ -1642,7 +1653,7 @@ public class AgentCodeGenerator {
         
         code.append("            // Call the agent with the user's message\n");
         code.append("            System.out.println(\"[Executor] Calling agent chat method...\");\n");
-        code.append("            String response = ").append(agentClassName).append(".chat(userMessage);\n");
+        code.append("            String response = agent.chat(userMessage);\n");
         code.append("            System.out.println(\"[Executor] Agent response: \" + response);\n\n");
         
         code.append("            // Create the response part\n");
