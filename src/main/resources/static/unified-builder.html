@@ -924,6 +924,221 @@
             padding: 24px 16px;
             font-size: 13px;
         }
+
+        /* Chat Interface Styles */
+        .chat-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #21262d;
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .chat-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #e6edf3;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chat-toggle-btn {
+            padding: 6px 12px;
+            background: #238636;
+            border: 1px solid #2ea043;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .chat-toggle-btn:hover {
+            background: #2ea043;
+        }
+
+        .chat-toggle-btn.active {
+            background: #da3633;
+            border-color: #da3633;
+        }
+
+        .chat-container {
+            background: #0d1117;
+            border-radius: 8px;
+            border: 1px solid #30363d;
+            overflow: hidden;
+            display: none;
+        }
+
+        .chat-container.open {
+            display: block;
+        }
+
+        .chat-messages {
+            padding: 16px;
+            max-height: 400px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: max-height 0.3s ease;
+        }
+
+        .chat-container.open .chat-messages {
+            max-height: 500px;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #161b22;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #484f58;
+        }
+
+        .chat-message {
+            padding: 10px 12px;
+            border-radius: 8px;
+            max-width: 85%;
+            word-wrap: break-word;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .chat-message.user {
+            background: #1f6feb;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-message.agent {
+            background: #21262d;
+            color: #e6edf3;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-message.system {
+            background: rgba(248, 81, 73, 0.1);
+            color: #f85149;
+            margin: 0 auto;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .chat-message-header {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .chat-message-time {
+            font-size: 10px;
+            opacity: 0.5;
+            margin-top: 4px;
+        }
+
+        .chat-input-area {
+            padding: 12px;
+            background: #161b22;
+            border-top: 1px solid #30363d;
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px 12px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #e6edf3;
+            font-size: 13px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            resize: none;
+            min-height: 40px;
+            max-height: 100px;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+        }
+
+        .chat-send-btn {
+            padding: 10px 16px;
+            background: #238636;
+            border: 1px solid #2ea043;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .chat-send-btn:hover:not(:disabled) {
+            background: #2ea043;
+        }
+
+        .chat-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .chat-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: #6e7681;
+            font-size: 13px;
+        }
+
+        .chat-loading {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: #21262d;
+            color: #8b949e;
+            border-radius: 8px;
+            max-width: 85%;
+            margin-right: auto;
+            font-size: 13px;
+        }
+
+        .chat-loading-spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #30363d;
+            border-top-color: #58a6ff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -1252,9 +1467,28 @@ If you don't know something, admit it rather than guessing." style="min-height: 
     <!-- Agent Details Modal -->
     <div class="modal" id="agentDetailsModal">
         <div class="modal-content" style="max-width: 700px;">
-            <div class="modal-header">Agent Details</div>
+            <div class="modal-header" id="agentModalHeader">Agent Details</div>
             <div id="agentDetailsContent" style="max-height: 500px; overflow-y: auto;"></div>
+            
+            <!-- Chat Section -->
+            <div class="chat-section">
+                <div class="chat-header">
+                    <h3>💬 Chat with Agent</h3>
+                    <button class="chat-toggle-btn" id="chatToggleBtn" onclick="toggleChat()">Open Chat</button>
+                </div>
+                <div class="chat-container" id="chatContainer">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-empty">Start a conversation with the agent...</div>
+                    </div>
+                    <div class="chat-input-area">
+                        <textarea class="chat-input" id="chatInput" placeholder="Type your message..." rows="1"></textarea>
+                        <button class="chat-send-btn" id="chatSendBtn" onclick="sendChatMessage()">Send</button>
+                    </div>
+                </div>
+            </div>
+            
             <div class="modal-actions">
+                <button class="modal-btn secondary" id="backToDetailsBtn" onclick="toggleChat()" style="display: none;">← Back to Details</button>
                 <button class="modal-btn secondary" style="background: #da3633; border-color: #da3633; color: white;" id="deleteAgentBtn" onclick="deleteAgentFromModal()">Delete Agent</button>
                 <button class="modal-btn primary" onclick="closeAgentDetailsModal()">Close</button>
             </div>
@@ -1275,6 +1509,8 @@ If you don't know something, admit it rather than guessing." style="min-height: 
         let selectedTransports = [];
         let customCallbacks = [];
         let currentCustomCallbackType = 'before';
+        let chatMessages = [];
+        let isChatOpen = false;
 
         // Load data on page load
         window.onload = function() {
@@ -1418,7 +1654,174 @@ If you don't know something, admit it rather than guessing." style="min-height: 
         function closeAgentDetailsModal() {
             document.getElementById('agentDetailsModal').classList.remove('active');
             currentAgentId = null;
+            // Reset chat
+            isChatOpen = false;
+            chatMessages = [];
+            document.getElementById('chatContainer').classList.remove('open');
+            document.getElementById('chatToggleBtn').textContent = 'Open Chat';
+            document.getElementById('chatToggleBtn').classList.remove('active');
+            // Show agent details again
+            document.getElementById('agentDetailsContent').style.display = 'block';
         }
+
+        // Chat Functions
+        function toggleChat() {
+            const chatContainer = document.getElementById('chatContainer');
+            const toggleBtn = document.getElementById('chatToggleBtn');
+            const agentDetails = document.getElementById('agentDetailsContent');
+            const modalHeader = document.getElementById('agentModalHeader');
+            const chatHeader = document.querySelector('.chat-section .chat-header');
+            const backBtn = document.getElementById('backToDetailsBtn');
+            const deleteBtn = document.getElementById('deleteAgentBtn');
+            
+            isChatOpen = !isChatOpen;
+            
+            if (isChatOpen) {
+                chatContainer.classList.add('open');
+                toggleBtn.textContent = 'Back to Details';
+                toggleBtn.classList.add('active');
+                // Hide agent details and chat section header
+                agentDetails.style.display = 'none';
+                chatHeader.style.display = 'none';
+                // Show back button, hide delete button
+                backBtn.style.display = 'block';
+                deleteBtn.style.display = 'none';
+                // Update header
+                modalHeader.textContent = '💬 Chat with Agent';
+                // Clear the empty state if it exists
+                if (chatMessages.length === 0) {
+                    const messagesContainer = document.getElementById('chatMessages');
+                    messagesContainer.innerHTML = '<div class="chat-empty">Start a conversation with the agent...</div>';
+                }
+            } else {
+                chatContainer.classList.remove('open');
+                toggleBtn.textContent = 'Open Chat';
+                toggleBtn.classList.remove('active');
+                // Show agent details and chat section header
+                agentDetails.style.display = 'block';
+                chatHeader.style.display = 'flex';
+                // Hide back button, show delete button
+                backBtn.style.display = 'none';
+                deleteBtn.style.display = 'block';
+                // Restore header
+                modalHeader.textContent = 'Agent Details';
+            }
+        }
+
+        function addChatMessage(role, content, timestamp = null) {
+            const message = {
+                role: role, // 'user', 'agent', or 'system'
+                content: content,
+                timestamp: timestamp || new Date().toLocaleTimeString()
+            };
+            
+            chatMessages.push(message);
+            renderChatMessages();
+        }
+
+        function renderChatMessages() {
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            if (chatMessages.length === 0) {
+                messagesContainer.innerHTML = '<div class="chat-empty">Start a conversation with the agent...</div>';
+                return;
+            }
+            
+            messagesContainer.innerHTML = chatMessages.map(msg => {
+                if (msg.role === 'loading') {
+                    return `
+                        <div class="chat-loading" id="chat-loading-indicator">
+                            <div class="chat-loading-spinner"></div>
+                            <span>Agent is thinking...</span>
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="chat-message ${msg.role}">
+                        ${msg.role === 'agent' || msg.role === 'user' ? `<div class="chat-message-header">${msg.role === 'user' ? 'You' : 'Agent'}</div>` : ''}
+                        <div>${msg.content}</div>
+                        <div class="chat-message-time">${msg.timestamp}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Auto-scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('chatSendBtn');
+            const message = input.value.trim();
+            
+            if (!message || !currentAgentId) {
+                return;
+            }
+            
+            // Add user message
+            addChatMessage('user', message);
+            input.value = '';
+            
+            // Disable input while sending
+            input.disabled = true;
+            sendBtn.disabled = true;
+            
+            // Add loading indicator
+            addChatMessage('loading', '');
+            
+            try {
+                const response = await fetch(`/api/a2a-agents/${currentAgentId}/message`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                // Remove loading indicator
+                chatMessages = chatMessages.filter(msg => msg.role !== 'loading');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const agentResponse = data.response || 'No response from agent';
+                    const executionTime = data.details?.execution_time;
+                    
+                    // Add agent response
+                    addChatMessage('agent', agentResponse);
+                    
+                    if (executionTime) {
+                        console.log(`Response received in ${executionTime}ms`);
+                    }
+                } else {
+                    const error = await response.json();
+                    addChatMessage('system', `Error: ${error.error || 'Failed to send message'}`);
+                }
+            } catch (error) {
+                // Remove loading indicator
+                chatMessages = chatMessages.filter(msg => msg.role !== 'loading');
+                renderChatMessages();
+                
+                addChatMessage('system', `Error: ${error.message}`);
+                console.error('Failed to send message:', error);
+            } finally {
+                // Re-enable input
+                input.disabled = false;
+                sendBtn.disabled = false;
+                input.focus();
+            }
+        }
+
+        // Allow sending message with Enter key (Shift+Enter for new line)
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatInput = document.getElementById('chatInput');
+            if (chatInput) {
+                chatInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendChatMessage();
+                    }
+                });
+            }
+        });
 
         async function deleteAgentFromModal() {
             if (!currentAgentId) return;
