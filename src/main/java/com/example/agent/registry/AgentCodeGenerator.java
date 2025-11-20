@@ -881,6 +881,10 @@ public class AgentCodeGenerator {
                "        <dependency>\n" +
                "            <groupId>io.quarkus</groupId>\n" +
                "            <artifactId>quarkus-resteasy-reactive</artifactId>\n" +
+               "        </dependency>\n" +
+               "        <dependency>\n" +
+               "            <groupId>io.quarkus</groupId>\n" +
+               "            <artifactId>quarkus-undertow</artifactId>\n" +
                "        </dependency>\n\n" +
                "        <!-- A2A Java SDK Client -->\n" +
                "        <dependency>\n" +
@@ -1145,6 +1149,9 @@ public class AgentCodeGenerator {
                     case "SessionScoped":
                         code.append("import jakarta.enterprise.context.SessionScoped;\n");
                         code.append("import java.io.Serializable;\n");
+                        break;
+                    case "Dependent":
+                        code.append("import jakarta.enterprise.context.Dependent;\n");
                         break;
                     default:
                         code.append("import jakarta.enterprise.context.ApplicationScoped;\n");

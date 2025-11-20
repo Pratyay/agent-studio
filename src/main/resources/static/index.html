@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agent Studio · Professional Builder</title>
+    
+    <!-- Monaco Editor for Java IDE support -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -1348,8 +1352,7 @@
 
 Example:
 You are a helpful assistant. Always be polite and concise.
-When answering questions, provide clear explanations.
-If you don't know something, admit it rather than guessing." style="min-height: 140px;"></textarea>
+When answering questions, provide clear explanations." style="min-height: 140px;"></textarea>
                     <div class="form-hint">Provide guidance on tone, approach, and behavior</div>
                 </div>
             </div>
@@ -1404,7 +1407,7 @@ If you don't know something, admit it rather than guessing." style="min-height: 
 
                 <div class="form-group">
                     <label>Google API Key</label>
-                    <input type="password" id="googleApiKey" placeholder="***..." autocomplete="off">
+                    <input type="password" id="googleApiKey" placeholder="***********************" autocomplete="off">
                     <div class="form-hint">Get your key from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a></div>
                 </div>
 
@@ -1584,10 +1587,9 @@ If you don't know something, admit it rather than guessing." style="min-height: 
                 <label>CDI Scope <span class="required">*</span></label>
                 <select id="customCallbackScope" style="width: 100%;">
                     <option value="ApplicationScoped">Application Scoped</option>
-                    <option value="RequestScoped">Request Scoped</option>
-                    <option value="SessionScoped">Session Scoped</option>
+                    <option value="Dependent">Dependent</option>
                 </select>
-                <div class="form-hint">Application: Singleton (default). Request: New instance per request. Session: Stateful per user session (requires Serializable)</div>
+                <div class="form-hint">Application Scoped: Singleton instance shared across the application. Dependent: New instance per injection point</div>
             </div>
 
             <div class="form-group">
@@ -1600,8 +1602,9 @@ If you don't know something, admit it rather than guessing." style="min-height: 
 
             <div class="form-group" id="lambdaCodeGroup">
                 <label>Lambda Code <span class="required">*</span></label>
-                <textarea id="customCallbackLambda" placeholder="(input, context) -> {&#10;    // Your callback logic here&#10;    System.out.println(\"Callback executed: \" + input);&#10;    return input;&#10;}" style="min-height: 150px; font-family: 'SF Mono', monospace; font-size: 13px;"></textarea>
-                <div class="form-hint">Write Java lambda expression: (input, context) -> { ... return input; }</div>
+                <div id="codeEditorContainer" style="border: 1px solid #ccd0d5; border-radius: 6px; overflow: hidden; min-height: 200px;"></div>
+                <textarea id="customCallbackLambda" style="display: none;"></textarea>
+                <div class="form-hint">Write Java lambda expression: (context) -> { ... return Maybe.empty(); }</div>
             </div>
 
             <div class="modal-actions">
@@ -1658,6 +1661,7 @@ If you don't know something, admit it rather than guessing." style="min-height: 
         let currentCustomCallbackType = 'before';
         let chatMessages = [];
         let isChatOpen = false;
+        let codeEditor = null;
 
         // Store original builder content on page load
         let originalBuilderContent = null;
@@ -2643,15 +2647,143 @@ If you don't know something, admit it rather than guessing." style="min-height: 
             document.getElementById('customCallbackModal').classList.add('active');
             document.getElementById('customCallbackName').value = '';
             document.getElementById('customCallbackDescription').value = '';
-            document.getElementById('customCallbackLambda').value = '';
             document.getElementById('customCallbackScope').value = 'ApplicationScoped';
             document.getElementById('customCallbackNeedsProducer').checked = false;
             document.querySelector('input[name="customCallbackState"][value="stateless"]').checked = true;
             toggleLambdaCode();
+            
+            // Initialize CodeMirror editor with a delay to ensure modal is rendered
+            setTimeout(() => {
+                if (!codeEditor) {
+                    initCodeEditor();
+                } else if (codeEditor !== 'fallback') {
+                    // Reset Monaco editor content
+                    const startDoc = `(context) -> {
+    // Your callback logic here
+    System.out.println("Custom callback executing: ");
+    return Maybe.empty();
+}`;
+                    if (codeEditor.setValue) {
+                        codeEditor.setValue(startDoc);
+                    }
+                }
+            }, 200);
+        }
+        
+        function initCodeEditor() {
+            const container = document.getElementById('codeEditorContainer');
+            if (!container) {
+                console.error('Code editor container not found');
+                return;
+            }
+            
+            if (codeEditor) return; // Already initialized
+            
+            // Check if Monaco is loaded
+            if (typeof require === 'undefined') {
+                console.warn('Monaco Editor not loaded, using fallback textarea');
+                useFallbackEditor(container);
+                return;
+            }
+            
+            try {
+                require.config({ 
+                    paths: { 
+                        'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' 
+                    }
+                });
+                
+                require(['vs/editor/editor.main'], function() {
+                    const startDoc = `(context) -> {
+    // Your callback logic here
+    System.out.println("Custom callback executing: ");
+    return Maybe.empty();
+}`;
+                    
+                    // Set container height
+                    container.style.height = '250px';
+                    
+                    codeEditor = monaco.editor.create(container, {
+                        value: startDoc,
+                        language: 'java',
+                        theme: 'vs',
+                        fontSize: 13,
+                        fontFamily: "'SF Mono', 'Consolas', 'Monaco', monospace",
+                        minimap: { enabled: false },
+                        lineNumbers: 'on',
+                        scrollBeyondLastLine: false,
+                        automaticLayout: true,
+                        tabSize: 4,
+                        wordWrap: 'on',
+                        suggestOnTriggerCharacters: true,
+                        quickSuggestions: true,
+                        folding: true,
+                        bracketPairColorization: { enabled: true }
+                    });
+                    
+                    // Sync with hidden textarea on change
+                    codeEditor.onDidChangeModelContent(() => {
+                        document.getElementById('customCallbackLambda').value = codeEditor.getValue();
+                    });
+                    
+                    // Set initial value in hidden textarea
+                    document.getElementById('customCallbackLambda').value = startDoc;
+                });
+            } catch (error) {
+                console.error('Failed to initialize Monaco Editor:', error);
+                useFallbackEditor(container);
+            }
+        }
+        
+        function useFallbackEditor(container) {
+            // Use a styled textarea as fallback
+            const textarea = document.createElement('textarea');
+            textarea.id = 'customCallbackLambdaVisible';
+            textarea.style.cssText = `
+                width: 100%;
+                min-height: 200px;
+                padding: 10px;
+                font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
+                font-size: 13px;
+                line-height: 1.5;
+                border: none;
+                outline: none;
+                resize: vertical;
+                background: #f5f6f7;
+            `;
+            textarea.placeholder = `(context) -> {
+    // Your callback logic here
+    System.out.println("Custom callback executing: ");
+    return Maybe.empty();
+}`;
+            
+            // Sync with hidden textarea
+            textarea.addEventListener('input', function() {
+                document.getElementById('customCallbackLambda').value = textarea.value;
+            });
+            
+            container.innerHTML = '';
+            container.appendChild(textarea);
+            codeEditor = 'fallback'; // Mark as using fallback
         }
 
         function closeCustomCallbackModal() {
             document.getElementById('customCallbackModal').classList.remove('active');
+            // Destroy editor to prevent memory leaks
+            if (codeEditor) {
+                if (codeEditor !== 'fallback') {
+                    if (codeEditor.dispose) {
+                        codeEditor.dispose();
+                    } else if (codeEditor.destroy) {
+                        codeEditor.destroy();
+                    }
+                }
+                codeEditor = null;
+                const container = document.getElementById('codeEditorContainer');
+                if (container) {
+                    container.innerHTML = '';
+                }
+            }
         }
 
         function toggleLambdaCode() {

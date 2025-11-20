@@ -1455,7 +1455,7 @@ If you don't know something, admit it rather than guessing." style="min-height: 
 
             <div class="form-group" id="lambdaCodeGroup">
                 <label>Lambda Code <span class="required">*</span></label>
-                <textarea id="customCallbackLambda" placeholder="(input, context) -> {&#10;    // Your callback logic here&#10;    System.out.println(\"Callback executed: \" + input);&#10;    return input;&#10;}" style="min-height: 150px; font-family: 'SF Mono', monospace; font-size: 13px;"></textarea>
+                <textarea id="customCallbackLambda" placeholder="(context) -> {&#10;    // Your callback logic here&#10;    System.out.println(\"Custom Callback executing: \");&#10;    return Maybe.empty();&#10;}" style="min-height: 150px; font-family: 'SF Mono', monospace; font-size: 13px;"></textarea>
                 <div class="form-hint">Write Java lambda expression: (input, context) -> { ... return input; }</div>
             </div>
 
