@@ -8,6 +8,9 @@
     <!-- Monaco Editor for Java IDE support -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
     
+    <!-- Technical Documentation Content -->
+    <script src="docs-content.js"></script>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -1751,43 +1754,12 @@ When answering questions, provide clear explanations." style="min-height: 140px;
                         `;
                         break;
                     case 'docs':
-                        content = `
+                        // Use comprehensive technical documentation from docs-content.js
+                        content = typeof DOCS_CONTENT !== 'undefined' ? DOCS_CONTENT : `
                             <div class="form-content">
                                 <div class="form-header">
                                     <h1>Documentation</h1>
-                                    <p>Comprehensive guides and API references</p>
-                                </div>
-                                <div class="section">
-                                    <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #050505;">Getting Started</h2>
-                                    <p style="font-size: 15px; line-height: 1.6; color: #65676b; margin-bottom: 12px;">
-                                        Welcome to Agent Studio! Follow these steps to create your first agent:
-                                    </p>
-                                    <ol style="padding-left: 24px; color: #65676b; font-size: 15px; line-height: 1.8;">
-                                        <li>Navigate to the Home section from the sidebar</li>
-                                        <li>Fill in the basic information for your agent</li>
-                                        <li>Drag and drop MCP tools from the right sidebar</li>
-                                        <li>Configure callbacks and transport protocols</li>
-                                        <li>Click "Generate & Download Agent" to get your code</li>
-                                    </ol>
-                                </div>
-                                <div class="section">
-                                    <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #050505;">API Reference</h2>
-                                    <div style="background: #f5f6f7; padding: 16px; border-radius: 6px; font-family: 'SF Mono', monospace; font-size: 13px; margin-bottom: 12px;">
-                                        <div style="margin-bottom: 8px;"><strong>GET</strong> /api/tools</div>
-                                        <div style="color: #65676b;">List all registered MCP tools</div>
-                                    </div>
-                                    <div style="background: #f5f6f7; padding: 16px; border-radius: 6px; font-family: 'SF Mono', monospace; font-size: 13px; margin-bottom: 12px;">
-                                        <div style="margin-bottom: 8px;"><strong>POST</strong> /api/tools</div>
-                                        <div style="color: #65676b;">Register a new MCP tool</div>
-                                    </div>
-                                    <div style="background: #f5f6f7; padding: 16px; border-radius: 6px; font-family: 'SF Mono', monospace; font-size: 13px; margin-bottom: 12px;">
-                                        <div style="margin-bottom: 8px;"><strong>GET</strong> /api/a2a-agents</div>
-                                        <div style="color: #65676b;">List all registered A2A agents</div>
-                                    </div>
-                                    <div style="background: #f5f6f7; padding: 16px; border-radius: 6px; font-family: 'SF Mono', monospace; font-size: 13px;">
-                                        <div style="margin-bottom: 8px;"><strong>POST</strong> /api/agents/generate</div>
-                                        <div style="color: #65676b;">Generate and download agent code</div>
-                                    </div>
+                                    <p>Loading technical documentation...</p>
                                 </div>
                             </div>
                         `;

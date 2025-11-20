@@ -1,52 +1,93 @@
 # Agent Studio
 
-A visual agent builder that generates AI agents with **MCP (Model Context Protocol)** tools and **A2A (Agent-to-Agent)** sub-agents using Google ADK and Quarkus.
+**A Production-Ready AI Agent Code Generator**
+
+Agent Studio is an enterprise-grade platform for generating AI agents with Model Context Protocol (MCP) tool integration and Agent-to-Agent (A2A) communication capabilities, powered by Google ADK and Quarkus.
 
 ## Overview
 
-Agent Studio is a web-based tool that enables you to:
+Agent Studio accelerates AI agent development by providing:
 
-- 🛠️ **Register and manage MCP tool servers** - Connect external tools and services via MCP
-- 🤖 **Register A2A agents as sub-agents** - Build hierarchical agent architectures
-- 🎨 **Visual drag-and-drop builder** - Compose agents by dragging tools and sub-agents
-- 🚀 **Generate production-ready code** - Download complete Maven projects with all dependencies
-- 💬 **Test agents in real-time** - Chat with your agents directly in the UI
+- **MCP Tool Server Management** - Register and integrate external tools and services via Model Context Protocol
+- **A2A Agent Registry** - Build hierarchical multi-agent architectures with specialized sub-agents
+- **Visual Composition Interface** - Drag-and-drop builder for composing agents with tools and sub-agents
+- **Code Generation Engine** - Generate complete, production-ready Maven projects with all dependencies
+- **Interactive Testing** - Test and validate agents in real-time through an integrated chat interface
+
+## Objective
+
+Agent Studio simplifies the development lifecycle of intelligent agents by automating infrastructure setup, dependency management, and protocol integration. It enables developers to focus on agent behavior and business logic rather than boilerplate code and configuration.
+
+### Key Benefits
+
+- **Reduce Development Time**: From weeks to minutes with automated code generation
+- **Production-Ready Output**: Complete projects with proper dependency injection, configuration management, and deployment scripts
+- **Protocol-Agnostic**: Support for multiple transport protocols (REST, JSON-RPC, gRPC)
+- **Extensible Architecture**: Modular design allows easy customization and extension
 
 ## Architecture
 
-### Generated Agents
+### High-Level Design (HLD)
+
+Agent Studio follows a three-tier architecture with clear separation between presentation, application logic, and integration layers:
+
+![High-Level Design](src/main/resources/static/img/agent-registry-hld.jpg)
+
+The system comprises:
+- **Web Interface**: Visual agent builder with drag-and-drop composition
+- **Registry Services**: Tool Registry and Agent Registry with Redis persistence
+- **Code Generator**: Template-based Maven project generation
+- **Integration Layer**: MCP and A2A protocol clients
+
+### Low-Level Design (LLD)
+
+Detailed component interactions and data flow:
+
+![Low-Level Design](src/main/resources/static/img/agent-registry-lld.jpg)
+
+Core components include:
+- **ToolRegistry**: Manages MCP tool server registrations and health checks
+- **AgentRegistry**: Central registry for agent metadata with pub/sub notifications
+- **AgentCodeGenerator**: Generates complete Maven projects with dependency injection
+- **CallbackRegistry**: Extensible hooks for agent lifecycle management
+
+### Generated Agent Stack
 
 Each generated agent is a complete Quarkus application that includes:
 
-- **Google ADK (Agent Development Kit)** for LLM agent orchestration
-- **MCP Java SDK** for tool integration
-- **A2A Java SDK** for agent-to-agent communication
-- **Quarkus** for server runtime and dependency injection
+- **Google ADK (Agent Development Kit)** - LLM agent orchestration framework
+- **MCP Java SDK** - Model Context Protocol client for tool integration
+- **A2A Java SDK** - Agent-to-Agent communication protocol
+- **Quarkus** - Cloud-native Java framework with CDI and reactive capabilities
 
 ### Key Features
 
-#### 1. MCP Tool Integration
+#### MCP Tool Integration
 - Connect to any MCP-compliant tool server
-- Agents automatically discover and use tool capabilities
-- Supports SSE (Server-Sent Events) transport
+- Dynamic tool discovery and capability querying
+- SSE (Server-Sent Events) transport protocol support
+- Runtime tool invocation with automatic schema validation
 
-#### 2. A2A Sub-Agent Delegation
-- Supervisor agents can delegate tasks to specialized sub-agents
-- Sub-agents expose their capabilities via AgentCards
-- Supports hierarchical agent architectures (agents calling agents)
+#### A2A Sub-Agent Delegation
+- Hierarchical agent architectures with supervisor-worker patterns
+- AgentCard-based capability discovery
+- Multi-protocol transport support (REST, JSON-RPC, gRPC)
+- Task delegation with automatic serialization/deserialization
 
-#### 3. Configurable Deployment
-- Customizable server ports
-- Environment-based configuration (Google API keys)
-- Production-ready startup scripts
+#### Enterprise-Grade Configuration
+- Environment-based credential management
+- Customizable server ports and endpoints
+- Health checks and monitoring endpoints
+- Production-ready startup scripts for Unix and Windows
 
 ## Getting Started
 
 ### Prerequisites
 
-- **Java 17+**
-- **Maven 3.6+**
-- **Google AI API Key** - Get one from [Google AI Studio](https://aistudio.google.com/app/apikey)
+- **Java Development Kit (JDK)** - Version 17 or higher
+- **Apache Maven** - Version 3.6 or higher
+- **Redis Server** - Version 6.0 or higher (for registry persistence)
+- **Google AI API Key** - Obtain from [Google AI Studio](https://aistudio.google.com/app/apikey)
 
 ### Running Agent Studio
 
@@ -56,54 +97,70 @@ Each generated agent is a complete Quarkus application that includes:
    cd agent-studio
    ```
 
-2. **Build the project:**
+2. **Start Redis server:**
+   ```bash
+   redis-server
+   ```
+
+3. **Build the project:**
    ```bash
    mvn clean package
    ```
 
-3. **Run the application:**
+4. **Run the application:**
    ```bash
    mvn quarkus:dev
    ```
 
-4. **Open in browser:**
+5. **Access the web interface:**
    ```
    http://localhost:8080
    ```
 
 ## Usage Guide
 
-### 1. Register MCP Tools
+### Step 1: Register MCP Tools
 
-Click **"➕ Register MCP Tool"** to add external tools:
+Register external tool servers via the web interface:
 
-- **Tool Name:** Identifier for the tool (e.g., `weather-tool`)
-- **Description:** What the tool does
-- **MCP Server Endpoint:** URL where the MCP server is running (e.g., `http://localhost:3000`)
+1. Click "Register MCP Tool" button
+2. Provide the following information:
+   - **Tool Name**: Unique identifier (e.g., `weather-tool`)
+   - **Description**: Tool functionality description
+   - **MCP Server Endpoint**: URL of the running MCP server (e.g., `http://localhost:3000`)
+3. System validates connectivity and queries available capabilities
+4. Tool appears in the registry with metadata and function signatures
 
-### 2. Register A2A Agents
+### Step 2: Register A2A Agents
 
-Click **"🤖 Register A2A Agent"** to add sub-agents:
+Register sub-agents for hierarchical architectures:
 
-- **A2A Agent URL:** URL of the agent's AgentCard (e.g., `http://localhost:8001`)
-- Click **"🔍 Test Connection"** to verify the agent is reachable
-- Review the agent's capabilities before registering
+1. Click "Register A2A Agent" button
+2. Enter the AgentCard URL (e.g., `http://localhost:8001/agent-card`)
+3. Click "Test Connection" to verify agent accessibility
+4. Review agent capabilities, supported protocols, and task schemas
+5. Confirm registration to add agent to the sub-agent registry
 
-### 3. Build Your Agent
+### Step 3: Compose Your Agent
 
-1. Switch between **"Attached Tools"** and **"Sub-Agents"** tabs
-2. **Drag and drop** tools and agents from the left sidebar to the canvas
-3. Configure agent properties on the right:
-   - **Agent Name:** Identifier for your agent
-   - **Description:** What your agent does
-   - **Instructions:** System prompt / behavior guidelines
-   - **Package Name:** Java package for generated code
-   - **Google API Key:** Your Gemini API key
-   - **Server Port:** Port for the agent server (default: 8000)
+Build agents using the visual composition interface:
 
-### 4. Generate Agent Code
+1. Navigate between "Attached Tools" and "Sub-Agents" tabs
+2. Drag and drop resources from the left sidebar to the canvas
+3. Configure agent properties in the right panel:
+   - **Agent Name**: Unique agent identifier
+   - **Description**: Agent purpose and capabilities
+   - **System Instructions**: Behavior guidelines and constraints
+   - **Package Name**: Java package namespace (e.g., `com.example.agent`)
+   - **Google API Key**: Gemini API credentials
+   - **Server Port**: HTTP server port (default: 8000)
 
-Click **"🚀 Generate & Download Agent"** to get a ZIP file containing:
+### Step 4: Generate Agent Code
+
+Generate and download the complete agent project:
+
+1. Click "Generate & Download Agent" button
+2. System generates a ZIP archive containing:
 
 ```
 your-agent/
@@ -123,39 +180,65 @@ your-agent/
             └── application.properties          # Quarkus config
 ```
 
-### 5. Run Your Generated Agent
+### Step 5: Deploy Your Generated Agent
 
-1. **Extract the ZIP file**
-2. **Set your Google API key:**
+1. **Extract the ZIP archive**
+   ```bash
+   unzip your-agent.zip
+   cd your-agent
+   ```
+
+2. **Configure environment variables:**
    ```bash
    export GOOGLE_API_KEY=your-api-key-here
    ```
-3. **Run the agent:**
+
+3. **Start the agent server:**
    ```bash
    ./start-server.sh
-   # or
+   # or use Maven directly
    mvn quarkus:dev
    ```
-4. **Access your agent:**
-   - AgentCard: `http://localhost:{port}/agent-card`
-   - A2A tasks: `http://localhost:{port}/tasks`
+
+4. **Verify deployment:**
+   - AgentCard endpoint: `http://localhost:{port}/agent-card`
+   - A2A task endpoint: `http://localhost:{port}/tasks`
+   - Health check: `http://localhost:{port}/q/health`
 
 ## Example Use Cases
 
-### 1. Travel Agent with Weather Tool
+### Use Case 1: Intelligent Travel Planner
 
-Create an agent that:
-- Accepts MCP tool: `weather-tool` (provides current weather)
-- Uses Gemini to plan trips based on weather conditions
+**Scenario**: Travel agent with real-time weather integration
 
-### 2. Supervisor Agent with Specialized Sub-Agents
+**Configuration**:
+- Attach MCP tool: `weather-tool` (provides current weather and forecasts)
+- System instructions: "Plan trips considering weather conditions, user preferences, and seasonal factors"
+- LLM: Google Gemini for natural language understanding and itinerary generation
 
-Create a supervisor that delegates to:
-- **Research Agent** - Gathers information
-- **Analysis Agent** - Analyzes data
-- **Writing Agent** - Produces final output
+**Capabilities**:
+- Query weather conditions for destination cities
+- Recommend travel dates based on weather patterns
+- Adjust itineraries dynamically based on forecasts
 
-The supervisor orchestrates these sub-agents to complete complex tasks.
+### Use Case 2: Multi-Agent Research System
+
+**Scenario**: Hierarchical agent system for complex research tasks
+
+**Architecture**:
+- **Supervisor Agent** (coordinator)
+  - **Research Agent** (sub-agent): Web search and data gathering
+  - **Analysis Agent** (sub-agent): Statistical analysis and pattern recognition
+  - **Writing Agent** (sub-agent): Document synthesis and report generation
+
+**Workflow**:
+1. User submits research query to supervisor
+2. Supervisor delegates search tasks to Research Agent
+3. Collected data sent to Analysis Agent for processing
+4. Analysis results forwarded to Writing Agent
+5. Supervisor synthesizes final report from sub-agent outputs
+
+**Benefits**: Task specialization, parallel processing, modular scalability
 
 ## Project Structure
 
@@ -183,69 +266,191 @@ agent-studio/
 
 ## Architecture Patterns
 
-### MCP Tool Integration
+### MCP Tool Integration Pattern
 
 ```
-Agent ──► McpToolset ──► MCP Server ──► External Tool
+┌─────────┐        ┌────────────┐        ┌────────────┐        ┌──────────────┐
+│  Agent  │───────►│ McpToolset │───────►│ MCP Server │───────►│ External Tool│
+└─────────┘        └────────────┘        └────────────┘        └──────────────┘
+     │                                           │
+     └──────────────Tool Response────────────────┘
 ```
 
-The agent uses Google ADK's `McpToolset` to connect to MCP servers, which expose tool capabilities that the LLM can invoke.
+**Flow**:
+1. Agent receives user request requiring external tool
+2. LLM generates tool invocation with parameters
+3. McpToolset routes request to appropriate MCP server
+4. MCP server executes tool and returns result
+5. Agent processes response and continues conversation
 
-### A2A Agent Delegation
+**Key Features**: Dynamic tool discovery, schema validation, SSE transport
+
+### A2A Agent Delegation Pattern
 
 ```
-Supervisor Agent ──► A2A Client ──► Sub-Agent ──► Response
-        │                                  │
-        └─────────────────────────────────┘
-              (receives response)
+┌──────────────────┐        ┌────────────┐        ┌───────────┐
+│ Supervisor Agent │───────►│ A2A Client │───────►│ Sub-Agent │
+└──────────────────┘        └────────────┘        └───────────┘
+         │                                               │
+         └──────────────Response Aggregation─────────────┘
 ```
 
-The supervisor agent uses the A2A SDK to communicate with sub-agents via their AgentCard endpoints.
+**Flow**:
+1. Supervisor analyzes task and identifies required capabilities
+2. A2A client constructs task payload with instructions and context
+3. Client selects transport protocol (REST/JSON-RPC/gRPC)
+4. Sub-agent processes task using specialized tools and LLM
+5. Response returned to supervisor for synthesis
+6. Supervisor aggregates outputs and generates final response
+
+**Key Features**: Protocol negotiation, capability-based routing, hierarchical composition
 
 ## Configuration
 
-### Environment Variables
+### Agent Studio Configuration
 
-- `GOOGLE_API_KEY` - Required for Gemini model access
-- `quarkus.http.port` - Server port (default: 8000)
+**Environment Variables**:
+- `REDIS_HOST` - Redis server hostname (default: localhost)
+- `REDIS_PORT` - Redis server port (default: 6379)
+- `QUARKUS_HTTP_PORT` - Web interface port (default: 8080)
+
+**Application Properties** (`src/main/resources/application.properties`):
+```properties
+quarkus.redis.hosts=redis://localhost:6379
+quarkus.http.port=8080
+quarkus.http.cors=true
+```
 
 ### Generated Agent Configuration
 
-Each generated agent includes:
-- `application.properties` - Quarkus configuration
-- `config.yml` - Tool endpoint configurations
+**Environment Variables**:
+- `GOOGLE_API_KEY` - Required for Gemini model access
+- `QUARKUS_HTTP_PORT` - Agent server port (default: 8000)
+
+**Configuration Files**:
+- `application.properties` - Quarkus runtime configuration
+- `config.yml` - MCP tool server endpoints
+
+**Example config.yml**:
+```yaml
+mcp:
+  tools:
+    - name: weather-tool
+      endpoint: http://localhost:3000
+    - name: database-tool
+      endpoint: http://localhost:3001
+```
 
 ## Troubleshooting
 
-### Agent doesn't respond
+### Common Issues
 
-- Check that `GOOGLE_API_KEY` is set
-- Verify MCP servers are running and accessible
-- Check agent logs for error messages
+#### Agent Fails to Start
 
-### Sub-agent timeout
+**Symptoms**: Application crashes on startup or fails to bind to port
 
-- Ensure sub-agent is running and accessible
-- Check network connectivity between agents
-- Verify AgentCard URL is correct
+**Solutions**:
+- Verify Java 17+ is installed: `java -version`
+- Ensure port is not already in use: `lsof -i :8000`
+- Check Redis connectivity: `redis-cli ping`
+- Review application logs for stack traces
 
-### Tool not found
+#### Agent Doesn't Respond to Queries
 
-- Verify MCP server endpoint is correct
-- Test MCP server connectivity manually
-- Check MCP server logs
+**Symptoms**: Agent endpoints return errors or timeout
+
+**Solutions**:
+- Verify `GOOGLE_API_KEY` environment variable is set
+- Check Gemini API quota and rate limits
+- Confirm MCP tool servers are running and accessible
+- Review agent logs for LLM errors or tool invocation failures
+
+#### Sub-Agent Communication Timeout
+
+**Symptoms**: Supervisor agent fails to reach sub-agents
+
+**Solutions**:
+- Verify sub-agent is running: `curl http://localhost:8001/agent-card`
+- Check network connectivity and firewall rules
+- Validate AgentCard URL configuration
+- Increase timeout values in A2A client configuration
+
+#### Tool Discovery Failures
+
+**Symptoms**: MCP tools not appearing in registry or returning errors
+
+**Solutions**:
+- Verify MCP server endpoint URL is correct and accessible
+- Test MCP server manually: `curl http://localhost:3000/sse`
+- Check MCP server logs for errors
+- Ensure MCP server implements correct protocol version
+- Verify network policies allow SSE connections
+
+#### Redis Connection Errors
+
+**Symptoms**: Registry operations fail or timeout
+
+**Solutions**:
+- Verify Redis is running: `redis-cli ping`
+- Check Redis configuration in `application.properties`
+- Review Redis logs for connection errors
+- Ensure Redis version is 6.0 or higher
+
+## Development
+
+### Project Structure
+
+```
+agent-studio/
+├── src/main/java/com/example/agent/
+│   └── registry/
+│       ├── AgentCodeGenerator.java          # Maven project generator
+│       ├── AgentGeneratorResource.java      # Code generation REST API
+│       ├── ToolRegistry.java                # MCP tool registry service
+│       ├── AgentRegistry.java               # A2A agent registry service
+│       ├── A2AClientService.java            # A2A protocol client
+│       ├── MCPClient.java                   # MCP protocol client
+│       └── CallbackRegistry.java            # Callback hook registry
+├── src/main/resources/
+│   ├── static/
+│   │   ├── unified-builder.html             # Visual agent builder UI
+│   │   ├── docs-content.js                  # Technical documentation
+│   │   └── img/
+│   │       ├── agent-registry-hld.jpg       # High-level architecture
+│   │       └── agent-registry-lld.jpg       # Low-level design
+│   └── application.properties                # Quarkus configuration
+└── pom.xml                                   # Maven dependencies
+```
+
+### Building from Source
+
+```bash
+mvn clean package -DskipTests
+mvn quarkus:dev
+```
+
+### Running Tests
+
+```bash
+mvn test
+```
 
 ## Contributing
 
-Contributions are welcome! Please ensure:
-- Code follows existing patterns
-- All changes are tested
-- Commit messages are descriptive
+Contributions are welcome! Please follow these guidelines:
+
+1. **Code Style**: Follow existing code patterns and formatting
+2. **Testing**: Add unit tests for new functionality
+3. **Documentation**: Update README and inline documentation
+4. **Commits**: Use descriptive commit messages with conventional commit format
+5. **Pull Requests**: Provide clear description of changes and motivation
 
 ## License
 
-[Specify your license here]
+This project is licensed under the [Apache License 2.0](LICENSE)
 
-## Support
+## Support and Contact
 
-For issues and questions, please open a GitHub issue or contact the maintainers.
+- **Issues**: Report bugs and feature requests via [GitHub Issues](https://github.com/your-org/agent-studio/issues)
+- **Documentation**: See [Technical Documentation](http://localhost:8080/docs) for detailed architecture
+- **Community**: Join discussions in [GitHub Discussions](https://github.com/your-org/agent-studio/discussions)
